@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  golang:
+  coprocessor:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
+      IMAGE_NAME: ${{ github.repository }}-coprocessor
     permissions:
       contents: read
       packages: write
