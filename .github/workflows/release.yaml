@@ -10,7 +10,7 @@ jobs:
   coprocessor:
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}-coprocessor
+      IMAGE_NAME: swapx-coprocessor
     permissions:
       contents: read
       packages: write
