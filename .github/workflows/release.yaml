@@ -53,7 +53,7 @@ jobs:
         id: build_machine
         uses: docker/build-push-action@v6
         with:
-          context: .
+          file: ./build/Dockerfile
           load: true
           builder: ${{ steps.setup_buildx.outputs.name }}
           tags: ${{ steps.extract_metadata.outputs.tags }}
