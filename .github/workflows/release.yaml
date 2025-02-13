@@ -72,11 +72,13 @@ jobs:
         run: |
           forge build --sizes
         id: build
+        working-directory: contracts
 
       - name: Run Forge tests
         run: |
           forge test -vvv
         id: test
+        working-directory: contracts
 
   release:
     env:
@@ -98,5 +100,5 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
+          config: ../../.goreleaser.yml
           args: release --clean
-          workdir: ./cmd/swapx
