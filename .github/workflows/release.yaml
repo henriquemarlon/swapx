@@ -17,6 +17,7 @@ jobs:
       attestations: write
       id-token: write
     runs-on: ubuntu-latest
+    platform: linux/riscv64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

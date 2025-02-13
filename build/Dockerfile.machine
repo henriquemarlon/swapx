@@ -1,7 +1,7 @@
 ################################################################################
 # cross build stage
-FROM golang:1.22.5-bookworm AS build
-ARG APP_NAME
+FROM --platform=linux/amd64 golang:1.22.5-bookworm AS build
+
 WORKDIR /src
 
 # Install Go dependencies
