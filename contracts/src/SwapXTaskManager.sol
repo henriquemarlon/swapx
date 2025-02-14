@@ -7,6 +7,10 @@ import {CoprocessorAdapter} from "../lib/coprocessor-base-contract/src/Coprocess
 import {SwapXHook} from "./SwapXHook.sol";
 
 contract SwapX is CoprocessorAdapter {
+
+    event TaskCreated(address indexed taskIssuer, bytes payload);
+
+
     error InputTooLarge(
         address appContract,
         uint256 inputLength,
@@ -18,14 +22,8 @@ contract SwapX is CoprocessorAdapter {
         bytes32 _machineHash
     ) CoprocessorAdapter(_taskIssuer, _machineHash) {}
 
-    mapping(address => bytes[]) private _hookSwaps;
-
     function createTask(bytes memory input) external payable {
         //TODO: define tokenomics model
-
-        bytes[] storage swaps = _hookSwaps[msg.sender];
-
-        uint256 index = swaps.length;
 
         bytes memory payload = abi.encodeCall(
             Inputs.EvmAdvance,
@@ -37,7 +35,7 @@ contract SwapX is CoprocessorAdapter {
                 block.number,
                 block.timestamp,
                 block.prevrandao,
-                index
+                input
             )
         );
 
@@ -49,17 +47,17 @@ contract SwapX is CoprocessorAdapter {
             );
         }
 
+        emit TaskCreated(msg.sender, input);
+
         callCoprocessor(payload);
 
-        // Store input for later retrieval through the GIO (GET_STORAGE_GIO 0x27)
-        // What is the sslot and the element address given an hook address?
-        swaps.push(input);
     }
 
     function handleNotice(bytes32 payloadHash, bytes memory notice) internal override {
-        address destination;
-        bytes memory decodedPayload;
-        SwapXHook hook = SwapXHook(destination);
-        //hook.callHook();
+
+        (uint256 buyOrderId, uint256 sellOrderId, address hookAddress) = abi.decode(notice, (uint256, uint256, address));
+        SwapXHook hook = SwapXHook(hookAddress);
+
+        hook.executeAsyncSwap(buyOrderId, sellOrderId);
     }
 }

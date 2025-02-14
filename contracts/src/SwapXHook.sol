@@ -9,8 +9,9 @@ import {CurrencySettler} from "OpenZeppelin/uniswap-hooks/utils/CurrencySettler.
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary, toBeforeSwapDelta} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {SafeCast} from "v4-core/src/libraries/SafeCast.sol";
-import {ISwapXHook} from "./interface/ISwapXHook.sol";
+import {ISwapXHook, ISwapXManager} from "./interface/ISwapXHook.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
+
 
 contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     using CurrencySettler for Currency;
@@ -22,6 +23,8 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     Currency public currency1;
 
     PoolKey public poolKey;
+
+    ISwapXManager public swapXManager;
 
     struct Order {
         address account;
@@ -60,7 +63,9 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     error OrderSqrtPricesDoNotMatch();
 
 
-    constructor(IPoolManager _poolManager) BaseAsyncSwap(_poolManager) {}
+    constructor(IPoolManager _poolManager, ISwapXManager _swapXManager) BaseAsyncSwap(_poolManager) {
+        swapXManager = _swapXManager;
+    }
 
     function _beforeInitialize(address, PoolKey calldata key, uint160) internal virtual override returns (bytes4) {
         currency0 = key.currency0;
@@ -98,6 +103,8 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
                 emit SellOrderCreated(sellOrders.length, sender, sqrtPrice, specifiedAmount);
                 sellOrders.push(Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount}));
             }
+
+            swapXManager.createTask(abi.encode(buyOrders.length, sellOrders.length));
 
             // Return delta that nets out specified amount to 0.
             return (this.beforeSwap.selector, toBeforeSwapDelta(specifiedAmount.toInt128(), 0), 0);
@@ -138,11 +145,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         Order memory buyOrder = buyOrders[buyOrderId];
         Order memory sellOrder = sellOrders[sellOrderId];
 
-        if(buyOrder.amount != sellOrder.amount) {
-            revert OrderAmountsDoNotMatch();
-        }
-
-        if(buyOrder.sqrtPrice != sellOrder.sqrtPrice) {
+        if(buyOrder.sqrtPrice < sellOrder.sqrtPrice) {
             revert OrderSqrtPricesDoNotMatch();
         }
 

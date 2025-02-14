@@ -13,7 +13,7 @@ interface Inputs {
     /// @param blockNumber The number of the block in which the input was added
     /// @param blockTimestamp The timestamp of the block in which the input was added
     /// @param prevRandao The latest RANDAO mix of the post beacon state of the previous block
-    /// @param index The index of the input in the input box
+    /// @param payload The payload of the input
     /// @dev See EIP-4399 for safe usage of `prevRandao`.
     function EvmAdvance(
         uint256 chainId,
@@ -23,6 +23,6 @@ interface Inputs {
         uint256 blockNumber,
         uint256 blockTimestamp,
         uint256 prevRandao,
-        uint256 index
+        bytes memory payload
     ) external;
 }

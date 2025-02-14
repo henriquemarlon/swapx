@@ -17,6 +17,8 @@ import {ProtocolFeeLibrary} from "v4-core/src/libraries/ProtocolFeeLibrary.sol";
 import {PoolId} from "v4-core/src/types/PoolId.sol";
 import {Pool} from "v4-core/src/libraries/Pool.sol";
 import {MockERC20} from "solmate/src/test/utils/mocks/MockERC20.sol";
+import {SwapXManagerMock} from "./mocks/SwapXManagerMock.sol";
+import {ISwapXManager} from "src/interface/ISwapXHook.sol";
 
 contract SwapXHookTest is Test, Deployers {
     using StateLibrary for IPoolManager;
@@ -41,8 +43,10 @@ contract SwapXHookTest is Test, Deployers {
     function setUp() public {
         deployFreshManagerAndRouters();
 
+        ISwapXManager swapXManager = ISwapXManager(address(new SwapXManagerMock()));
+
         hook = SwapXHook(address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_INITIALIZE_FLAG)));
-        deployCodeTo("src/SwapXHook.sol:SwapXHook", abi.encode(manager), address(hook));
+        deployCodeTo("src/SwapXHook.sol:SwapXHook", abi.encode(manager, swapXManager), address(hook));
 
         deployMintAndApprove2Currencies();
         (key,) = initPoolAndAddLiquidity(
@@ -186,4 +190,55 @@ contract SwapXHookTest is Test, Deployers {
         assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
 
     }
+
+    function test_executeAsyncSwap_differentPrices_succeeds() public {
+        //buy order
+        IPoolManager.SwapParams memory swapParams =
+            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -100, sqrtPriceLimitX96: SQRT_PRICE_1_2});
+
+        // sell order
+        IPoolManager.SwapParams memory swapParams2 =
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -100, sqrtPriceLimitX96: SQRT_PRICE_1_2});
+
+        PoolSwapTest.TestSettings memory testSettings =
+            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+
+        uint256 sqrtPrice = 1000000000000000000;
+
+        currency0.transfer(BUYER, 1e20);
+        currency1.transfer(SELLER, 1e20);
+
+        uint256 buyerBalance0Before = currency0.balanceOf(BUYER);
+        uint256 buyerBalance1Before = currency1.balanceOf(BUYER);
+
+        uint256 sellerBalance0Before = currency0.balanceOf(SELLER);
+        uint256 sellerBalance1Before = currency1.balanceOf(SELLER);
+
+        vm.prank(BUYER);
+        MockERC20(Currency.unwrap(currency0)).approve(address(swapRouter), 1e20);
+        vm.prank(BUYER);
+        swapRouter.swap(key, swapParams, testSettings, abi.encode(sqrtPrice, BUYER));
+
+        assertEq(currency0.balanceOf(BUYER), buyerBalance0Before - 100);
+        assertEq(currency1.balanceOf(BUYER), buyerBalance1Before);
+
+        vm.prank(SELLER);
+        MockERC20(Currency.unwrap(currency1)).approve(address(swapRouter), 1e20);
+        vm.prank(SELLER);
+        swapRouter.swap(key, swapParams2, testSettings, abi.encode(sqrtPrice /2, SELLER));
+
+        assertEq(currency0.balanceOf(SELLER), sellerBalance0Before);
+        assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
+        //execute async swap
+        hook.executeAsyncSwap(0, 0);
+
+        assertEq(currency0.balanceOf(BUYER), buyerBalance0Before - 100);
+        assertEq(currency1.balanceOf(BUYER), buyerBalance1Before + 100);
+
+        assertEq(currency0.balanceOf(SELLER), sellerBalance0Before + 100);
+        assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
+
+    }
+
+
 }
