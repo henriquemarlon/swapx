@@ -4,3 +4,6 @@
 [submodule "third_party/cartesi-coprocessor"]
 	path = third_party/cartesi-coprocessor
 	url = https://github.com/henriquemarlon/cartesi-coprocessor
+[submodule "contracts/lib/coprocessor-base-contract"]
+	path = contracts/lib/coprocessor-base-contract
+	url = https://github.com/Mugen-Builders/coprocessor-base-contract
