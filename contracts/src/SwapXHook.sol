@@ -36,9 +36,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     mapping(uint256 => bool) public sellOrderFulfilledOrCancelled; // sellOrderId => isFulfilled (sell = zeroForOne == false)
 
 
-
-
-
     Order[] public buyOrders; // (buy = zeroForOne == true)
     Order[] public sellOrders; // (sell = zeroForOne == false)
 
@@ -59,7 +56,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     error OrderDoesNotExist();
     error OrderAlreadyFulfilledOrCancelled();
     error OnlyOrderCreatorCanCancel();
-    error OrderCreatorCannotBeTheSame();
     error OrderAmountsDoNotMatch();
     error OrderSqrtPricesDoNotMatch();
 
@@ -73,12 +69,13 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         return this.beforeInitialize.selector;
     }
 
-    function _beforeSwap(address sender, PoolKey calldata key, IPoolManager.SwapParams calldata params, bytes calldata hookData)
+    function _beforeSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata params, bytes calldata hookData)
         internal
         virtual
         override
         returns (bytes4, BeforeSwapDelta, uint24)
     {
+
 
         // Async swaps are only possible on exact-input swaps, so exact-output swaps are executed by the `PoolManager` as normal
         if (params.amountSpecified < 0 && hookData.length > 0) {
@@ -91,14 +88,15 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
             // Mint ERC-6909 claim token for the specified currency and amount
             specified.take(poolManager, address(this), specifiedAmount, false);
 
-            uint256 sqrtPrice = abi.decode(hookData, (uint256));
+            (uint256 sqrtPrice, address sender) = abi.decode(hookData, (uint256, address));
 
             if(params.zeroForOne) {
+                emit BuyOrderCreated(buyOrders.length, sender, sqrtPrice, specifiedAmount);
                 buyOrders.push(Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount}));
-                emit BuyOrderCreated(buyOrders.length - 1, sender, sqrtPrice, specifiedAmount);
+                
             } else {
+                emit SellOrderCreated(sellOrders.length, sender, sqrtPrice, specifiedAmount);
                 sellOrders.push(Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount}));
-                emit SellOrderCreated(sellOrders.length - 1, sender, sqrtPrice, specifiedAmount);
             }
 
             // Return delta that nets out specified amount to 0.
@@ -139,10 +137,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
         Order memory buyOrder = buyOrders[buyOrderId];
         Order memory sellOrder = sellOrders[sellOrderId];
-
-        if(buyOrder.account == sellOrder.account) {
-            revert OrderCreatorCannotBeTheSame();
-        }
 
         if(buyOrder.amount != sellOrder.amount) {
             revert OrderAmountsDoNotMatch();
