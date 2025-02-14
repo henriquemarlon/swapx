@@ -54,9 +54,10 @@ contract SwapX is CoprocessorAdapter {
     }
 
     function handleNotice(bytes32 payloadHash, bytes memory notice) internal override {
-        address destination;
-        bytes memory decodedPayload;
-        SwapXHook hook = SwapXHook(destination);
-        //hook.callHook();
+
+        (uint256 buyOrderId, uint256 sellOrderId, address hookAddress) = abi.decode(notice, (uint256, uint256, address));
+        SwapXHook hook = SwapXHook(hookAddress);
+
+        hook.executeAsyncSwap(buyOrderId, sellOrderId);
     }
 }
