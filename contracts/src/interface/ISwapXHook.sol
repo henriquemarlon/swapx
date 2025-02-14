@@ -8,3 +8,7 @@ interface ISwapXHook {
     function cancelBuyOrder(uint256 orderId) external;
     function cancelSellOrder(uint256 orderId) external;
 }
+
+interface ISwapXManager {
+    function createTask(bytes memory input) external;
+}
