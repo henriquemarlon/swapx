@@ -1,0 +1,189 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+
+import "forge-std/Test.sol";
+import {Deployers} from "v4-core/test/utils/Deployers.sol";
+import {SwapXHook} from "src/SwapXHook.sol";
+import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
+import {Hooks} from "v4-core/src/libraries/Hooks.sol";
+import {PoolSwapTest} from "v4-core/src/test/PoolSwapTest.sol";
+import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
+import {Currency} from "v4-core/src/types/Currency.sol";
+import {BalanceDelta} from "v4-core/src/types/BalanceDelta.sol";
+import {PoolKey} from "v4-core/src/types/PoolKey.sol";
+import {LPFeeLibrary} from "v4-core/src/libraries/LPFeeLibrary.sol";
+import {StateLibrary} from "v4-core/src/libraries/StateLibrary.sol";
+import {ProtocolFeeLibrary} from "v4-core/src/libraries/ProtocolFeeLibrary.sol";
+import {PoolId} from "v4-core/src/types/PoolId.sol";
+import {Pool} from "v4-core/src/libraries/Pool.sol";
+import {MockERC20} from "solmate/src/test/utils/mocks/MockERC20.sol";
+
+contract SwapXHookTest is Test, Deployers {
+    using StateLibrary for IPoolManager;
+    using ProtocolFeeLibrary for uint16;
+
+    SwapXHook hook;
+
+    event Swap(
+        PoolId indexed poolId,
+        address indexed sender,
+        int128 amount0,
+        int128 amount1,
+        uint160 sqrtPriceX96,
+        uint128 liquidity,
+        int24 tick,
+        uint24 fee
+    );
+
+    address public BUYER = vm.addr(1);
+    address public SELLER = vm.addr(2);
+
+    function setUp() public {
+        deployFreshManagerAndRouters();
+
+        hook = SwapXHook(address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_INITIALIZE_FLAG)));
+        deployCodeTo("src/SwapXHook.sol:SwapXHook", abi.encode(manager), address(hook));
+
+        deployMintAndApprove2Currencies();
+        (key,) = initPoolAndAddLiquidity(
+            currency0, currency1, IHooks(address(hook)), LPFeeLibrary.DYNAMIC_FEE_FLAG, SQRT_PRICE_1_1
+        );
+
+        vm.label(Currency.unwrap(currency0), "currency0");
+        vm.label(Currency.unwrap(currency1), "currency1");
+    }
+
+    function test_swap_exactInput_succeeds() public {
+        IPoolManager.SwapParams memory swapParams =
+            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -100, sqrtPriceLimitX96: SQRT_PRICE_1_2});
+        PoolSwapTest.TestSettings memory testSettings =
+            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+
+        uint256 balance0Before = currency0.balanceOfSelf();
+        uint256 balance1Before = currency1.balanceOfSelf();
+
+        // vm.expectEmit(true, true, true, true, address(manager));
+        // emit Swap(key.toId(), address(swapRouter), 0, 0, 79228162514264337593543950336, 1e18, 0, 0);
+
+        swapRouter.swap(key, swapParams, testSettings, abi.encode(100, BUYER));
+
+        uint256 balance0After = currency0.balanceOfSelf();
+        uint256 balance1After = currency1.balanceOfSelf();
+
+        assertEq(balance0Before - balance0After, 100);
+        assertEq(balance1Before, balance1After);
+    }
+
+    function test_swap_exactOutput_succeeds() public {
+        IPoolManager.SwapParams memory swapParams =
+            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: 100, sqrtPriceLimitX96: SQRT_PRICE_1_2});
+        PoolSwapTest.TestSettings memory testSettings =
+            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+
+        uint256 balance0Before = currency0.balanceOfSelf();
+        uint256 balance1Before = currency1.balanceOfSelf();
+
+        // vm.expectEmit(true, true, true, true, address(manager));
+        // emit Swap(key.toId(), address(swapRouter), -101, 100, 79228162514264329670727698909, 1e18, -1, 0);
+
+        swapRouter.swap(key, swapParams, testSettings, ZERO_BYTES);
+
+        uint256 balance0After = currency0.balanceOfSelf();
+        uint256 balance1After = currency1.balanceOfSelf();
+
+        // async swaps are not applied to exact-output swaps
+        assertEq(balance0Before - balance0After, 101);
+        assertEq(balance1After - balance1Before, 100);
+    }
+
+    function test_swap_exactInput_notZeroForOne_succeeds() public {
+        IPoolManager.SwapParams memory swapParams =
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -100, sqrtPriceLimitX96: SQRT_PRICE_1_2});
+        PoolSwapTest.TestSettings memory testSettings =
+            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+
+        uint256 balance0Before = currency0.balanceOfSelf();
+        uint256 balance1Before = currency1.balanceOfSelf();
+
+        // vm.expectEmit(true, true, true, true, address(manager));
+        // emit Swap(key.toId(), address(swapRouter), 0, 0, 79228162514264337593543950336, 1e18, 0, 0);
+
+        swapRouter.swap(key, swapParams, testSettings, abi.encode(100, BUYER));
+
+        uint256 balance0After = currency0.balanceOfSelf();
+        uint256 balance1After = currency1.balanceOfSelf();
+
+        assertEq(balance1Before - balance1After, 100);
+        assertEq(balance0Before, balance0After);
+    }
+
+    function test_swap_exactOutput_notZeroForOne_succeeds() public {
+        IPoolManager.SwapParams memory swapParams =
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: 100, sqrtPriceLimitX96: MAX_PRICE_LIMIT});
+        PoolSwapTest.TestSettings memory testSettings =
+            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+
+        uint256 balance0Before = currency0.balanceOfSelf();
+        uint256 balance1Before = currency1.balanceOfSelf();
+
+        // vm.expectEmit(true, true, true, true, address(manager));
+        // emit Swap(key.toId(), address(swapRouter), 100, -101, 79228162514264345516360201763, 1e18, 0, 0);
+
+        swapRouter.swap(key, swapParams, testSettings, ZERO_BYTES);
+
+        uint256 balance0After = currency0.balanceOfSelf();
+        uint256 balance1After = currency1.balanceOfSelf();
+
+        assertEq(balance1Before - balance1After, 101);
+        assertEq(balance0After - balance0Before, 100);
+    }
+
+    function test_executeAsyncSwap_succeeds() public {
+        //buy order
+        IPoolManager.SwapParams memory swapParams =
+            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -100, sqrtPriceLimitX96: SQRT_PRICE_1_2});
+
+        // sell order
+        IPoolManager.SwapParams memory swapParams2 =
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -100, sqrtPriceLimitX96: SQRT_PRICE_1_2});
+
+        PoolSwapTest.TestSettings memory testSettings =
+            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+
+        uint256 sqrtPrice = 1000000000000000000;
+
+        currency0.transfer(BUYER, 1e20);
+        currency1.transfer(SELLER, 1e20);
+
+        uint256 buyerBalance0Before = currency0.balanceOf(BUYER);
+        uint256 buyerBalance1Before = currency1.balanceOf(BUYER);
+
+        uint256 sellerBalance0Before = currency0.balanceOf(SELLER);
+        uint256 sellerBalance1Before = currency1.balanceOf(SELLER);
+
+        vm.prank(BUYER);
+        MockERC20(Currency.unwrap(currency0)).approve(address(swapRouter), 1e20);
+        vm.prank(BUYER);
+        swapRouter.swap(key, swapParams, testSettings, abi.encode(sqrtPrice, BUYER));
+
+        assertEq(currency0.balanceOf(BUYER), buyerBalance0Before - 100);
+        assertEq(currency1.balanceOf(BUYER), buyerBalance1Before);
+
+        vm.prank(SELLER);
+        MockERC20(Currency.unwrap(currency1)).approve(address(swapRouter), 1e20);
+        vm.prank(SELLER);
+        swapRouter.swap(key, swapParams2, testSettings, abi.encode(sqrtPrice, SELLER));
+
+        assertEq(currency0.balanceOf(SELLER), sellerBalance0Before);
+        assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
+        //execute async swap
+        hook.executeAsyncSwap(0, 0);
+
+        assertEq(currency0.balanceOf(BUYER), buyerBalance0Before - 100);
+        assertEq(currency1.balanceOf(BUYER), buyerBalance1Before + 100);
+
+        assertEq(currency0.balanceOf(SELLER), sellerBalance0Before + 100);
+        assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
+
+    }
+}
