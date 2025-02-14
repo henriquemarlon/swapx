@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity 0.8.28;
 
 import { BaseAsyncSwap } from "OpenZeppelin/uniswap-hooks/base/BaseAsyncSwap.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
@@ -9,10 +9,15 @@ import {CurrencySettler} from "OpenZeppelin/uniswap-hooks/utils/CurrencySettler.
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary, toBeforeSwapDelta} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {SafeCast} from "v4-core/src/libraries/SafeCast.sol";
+import {ISwapXHook} from "./interface/ISwapXHook.sol";
 
-contract OrderBookHook is BaseAsyncSwap {
+contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     using CurrencySettler for Currency;
     using SafeCast for uint256;
+
+    struct Order {
+        
+    }
 
 
     constructor(IPoolManager _poolManager) BaseAsyncSwap(_poolManager) {}
@@ -42,3 +47,5 @@ contract OrderBookHook is BaseAsyncSwap {
     }
 
 }
+
+
