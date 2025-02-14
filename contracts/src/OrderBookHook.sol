@@ -17,7 +17,7 @@ contract OrderBookHook is BaseAsyncSwap {
 
     constructor(IPoolManager _poolManager) BaseAsyncSwap(_poolManager) {}
 
-    function _beforeSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata params, bytes calldata)
+    function _beforeSwap(address sender, PoolKey calldata key, IPoolManager.SwapParams calldata params, bytes calldata)
         internal
         virtual
         override
@@ -32,7 +32,7 @@ contract OrderBookHook is BaseAsyncSwap {
             uint256 specifiedAmount = uint256(-params.amountSpecified);
 
             // Mint ERC-6909 claim token for the specified currency and amount
-            specified.take(poolManager, address(this), specifiedAmount, true);
+            specified.take(poolManager, address(this), specifiedAmount, false);
 
             // Return delta that nets out specified amount to 0.
             return (this.beforeSwap.selector, toBeforeSwapDelta(specifiedAmount.toInt128(), 0), 0);
