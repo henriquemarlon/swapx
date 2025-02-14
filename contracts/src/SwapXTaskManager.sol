@@ -60,6 +60,6 @@ contract SwapX is CoprocessorAdapter {
         address destination;
         bytes memory decodedPayload;
         SwapXHook hook = SwapXHook(destination);
-        hook.callHook();
+        //hook.callHook();
     }
 }
