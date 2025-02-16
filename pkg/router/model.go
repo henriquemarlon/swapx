@@ -4,10 +4,6 @@ import (
 	"encoding/json"
 )
 
-type Input struct {
-	Payload json.RawMessage `json:"payload"`
-}
-
 type FinishRequest struct {
 	Status string `json:"status"`
 }
@@ -18,8 +14,8 @@ type FinishResponse struct {
 }
 
 type AdvanceResponse struct {
-	Metadata Metadata `json:"metadata"`
-	Payload  string   `json:"payload"`
+	Metadata Metadata        `json:"metadata"`
+	Payload  json.RawMessage `json:"payload"`
 }
 
 type Metadata struct {
@@ -29,7 +25,6 @@ type Metadata struct {
 	BlockHash   string `json:"block_hash"`
 	BlockNumber uint64 `json:"block_number"`
 	Timestamp   uint64 `json:"timestamp"`
-	PrevRandao  string `json:"prev_randao"`
 }
 
 type NoticeRequest struct {
