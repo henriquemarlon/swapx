@@ -57,7 +57,7 @@ cd coprocessor
 cartesi-coprocessor publish --network devnet
 ```
 
-3. Deploy the `LlamaAgent.sol` contract:
+3. Deploy `SwapXHook.sol` and `SwapXTaskManager.sol` contracts:
 
 > [!WARNING]
 > 
