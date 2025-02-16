@@ -23,7 +23,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
     PoolKey public poolKey;
 
-    ISwapXTaskManager public swapXManager;
+    ISwapXTaskManager public swapXTaskManager;
 
     struct Order {
         address account;
@@ -60,8 +60,8 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     error OrderSqrtPricesDoNotMatch();
 
 
-    constructor(IPoolManager _poolManager, ISwapXTaskManager _swapXManager) BaseAsyncSwap(_poolManager) {
-        swapXManager = _swapXManager;
+    constructor(IPoolManager _poolManager, ISwapXTaskManager _swapXTaskManager) BaseAsyncSwap(_poolManager) {
+        swapXTaskManager = _swapXTaskManager;
     }
 
     function _beforeInitialize(address, PoolKey calldata key, uint160) internal virtual override returns (bytes4) {
@@ -92,17 +92,18 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
             (uint256 sqrtPrice, address sender) = abi.decode(hookData, (uint256, address));
 
+            Order memory order = Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount});
+
             if(params.zeroForOne) {
                 emit BuyOrderCreated(buyOrders.length, sender, sqrtPrice, specifiedAmount);
-                buyOrders.push(Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount}));
-                
+                buyOrders.push(order);
+                swapXTaskManager.createTask(abi.encode(order, uint256(0)));
             } else {
                 emit SellOrderCreated(sellOrders.length, sender, sqrtPrice, specifiedAmount);
-                sellOrders.push(Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount}));
+                sellOrders.push(order);
+                swapXTaskManager.createTask(abi.encode(order, uint256(1)));
             }
-
-            swapXManager.createTask(abi.encode(buyOrders.length, sellOrders.length));
-
+            
             // Return delta that nets out specified amount to 0.
             return (this.beforeSwap.selector, toBeforeSwapDelta(specifiedAmount.toInt128(), 0), 0);
         } else {

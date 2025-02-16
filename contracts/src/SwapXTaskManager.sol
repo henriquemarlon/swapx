@@ -19,20 +19,19 @@ contract SwapXTaskManager is CoprocessorAdapter {
         bytes32 _machineHash
     ) CoprocessorAdapter(_taskIssuer, _machineHash) {}
 
-    function createTask(bytes memory input) external payable {
+    function createTask(bytes memory payload) external payable {
         //TODO: define tokenomics model
 
-        bytes memory payload = abi.encodeCall(
-            Inputs.EvmAdvance,
+        bytes memory input = abi.encodeCall(
+            Inputs.SwapXAdvance,
             (
                 block.chainid,
                 address(this),
                 msg.sender,
-                blockhash(block.number),
+                blockhash(block.number - 1),
                 block.number,
                 block.timestamp,
-                block.prevrandao,
-                input
+                payload
             )
         );
 
