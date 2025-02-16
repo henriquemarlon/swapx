@@ -1,13 +1,12 @@
--include .env.develop
+-include .env
 
 START_LOG = @echo "=============== START OF LOG ==============="
 END_LOG = @echo "=============== END OF LOG ==============="
 
 .PHONY: env
-env: ./.env.develop
+env:
 	$(START_LOG)
-	@cp ./.env.develop.tmpl ./.env.develop
-	@touch .cartesi.env
+	@cp ./.env.tmpl ./.env
 	@echo "Environment file created at ./.env.develop"
 	$(END_LOG)
 
@@ -20,10 +19,24 @@ build:
 	@cartesi build --from-image machine:latest
 	$(END_LOG)
 
-.PHONY: dev
-dev:
+.PHONY: local
+local:
 	$(START_LOG)
-	@nonodox -- air
+	@forge script ./contracts/script/DeployLocal.s.sol --broadcast \
+									 --root contracts \
+									 --rpc-url $(RPC_URL) \
+									 --private-key $(PRIVATE_KEY) \
+									 -v
+	$(END_LOG)
+
+.PHONY: contracts
+contracts:
+	$(START_LOG)
+	@forge script ./contracts/script/SwapX.s.sol --broadcast \
+									 --root contracts \
+									 --rpc-url $(RPC_URL) \
+									 --private-key $(PRIVATE_KEY)
+	$(END_LOG)
 
 .PHONY: test
 test:
