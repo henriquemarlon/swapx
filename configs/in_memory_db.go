@@ -7,13 +7,13 @@ import (
 )
 
 type InMemoryDB struct {
-	Orders map[uint]*domain.Order
+	Orders map[uint64]*domain.Order
 	Lock   *sync.RWMutex
 }
 
 func SetupInMemoryDB() (*InMemoryDB, error) {
 	return &InMemoryDB{
-		Orders: make(map[uint]*domain.Order),
+		Orders: make(map[uint64]*domain.Order),
 		Lock:   &sync.RWMutex{},
 	}, nil
 }

@@ -27,7 +27,7 @@ contract SendBuyOrder is Script {
         PoolSwapTest(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c);
     PoolModifyLiquidityTest modifyLiquidityRouter =
         PoolModifyLiquidityTest(0xc6e7DF5E7b4f2A278906862b61205850344D4e7d);
-    SwapXHook hook = SwapXHook(0x74DC4ec882a4990B11eb034D0fc9315bEB2b6088);
+    SwapXHook hook = SwapXHook(0x0e75A2f72c53548E5b45E8a03179C69D6C0Ce088);
 
     PoolKey key;
 

@@ -6,7 +6,7 @@ import (
 
 type FindOrderByTypeAndIdInputDTO struct {
 	Type string `json:"type"`
-	Id   uint   `json:"id"`
+	Id   uint64 `json:"id"`
 }
 
 type FindOrderByTypeAndIdUsecase struct {

@@ -24,18 +24,18 @@ type OrderRepository interface {
 	CreateOrder(order *Order) (*Order, error)
 	FindAllOrders() ([]*Order, error)
 	FindOrdersByType(orderType string) ([]*Order, error)
-	FindOrderByTypeAndId(orderType string, id uint) (*Order, error)
+	FindOrderByTypeAndId(orderType string, id uint64) (*Order, error)
 }
 
 type Order struct {
-	Id        uint           `json:"id"`
+	Id        uint64         `json:"id"`
 	Account   common.Address `json:"account"`
 	SqrtPrice *uint256.Int   `json:"sqrt_price"`
 	Amount    *uint256.Int   `json:"amount"`
 	Type      OrderType      `json:"type"`
 }
 
-func NewOrder(id uint, account common.Address, sqrtPrice, amount *uint256.Int, orderType OrderType) (*Order, error) {
+func NewOrder(id uint64, account common.Address, sqrtPrice, amount *uint256.Int, orderType OrderType) (*Order, error) {
 	order := &Order{
 		Id:        id,
 		Account:   account,

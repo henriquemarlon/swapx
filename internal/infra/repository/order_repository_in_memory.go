@@ -1,14 +1,20 @@
 package repository
 
 import (
+	"log"
+	"os"
 	"sync"
 
 	"github.com/henriquemarlon/swapx/configs"
 	"github.com/henriquemarlon/swapx/internal/domain"
 )
 
+var (
+	infolog = log.New(os.Stderr, "[ info ]  ", log.Lshortfile)
+)
+
 type OrderRepositoryInMemory struct {
-	db    map[uint]*domain.Order
+	db    map[uint64]*domain.Order
 	mutex *sync.RWMutex
 }
 
@@ -24,6 +30,7 @@ func (r *OrderRepositoryInMemory) CreateOrder(order *domain.Order) (*domain.Orde
 	defer r.mutex.Unlock()
 
 	r.db[order.Id] = order
+	infolog.Println("Order created:", order)
 	return order, nil
 }
 
@@ -34,11 +41,12 @@ func (r *OrderRepositoryInMemory) FindAllOrders() ([]*domain.Order, error) {
 	var orders []*domain.Order
 	for _, order := range r.db {
 		orders = append(orders, order)
+		infolog.Println("Found", "order", order)
 	}
 	return orders, nil
 }
 
-func (r *OrderRepositoryInMemory) FindOrderByTypeAndId(orderType string, id uint) (*domain.Order, error) {
+func (r *OrderRepositoryInMemory) FindOrderByTypeAndId(orderType string, id uint64) (*domain.Order, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -46,10 +54,11 @@ func (r *OrderRepositoryInMemory) FindOrderByTypeAndId(orderType string, id uint
 	if !exists || string(order.Type) != orderType {
 		return nil, domain.ErrOderNotFound
 	}
+	infolog.Println("Found", "order", order)
 	return order, nil
 }
 
-func (r *OrderRepositoryInMemory) FindOrderByType(orderType string) ([]*domain.Order, error) {
+func (r *OrderRepositoryInMemory) FindOrdersByType(orderType string) ([]*domain.Order, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 
@@ -57,6 +66,7 @@ func (r *OrderRepositoryInMemory) FindOrderByType(orderType string) ([]*domain.O
 	for _, order := range r.db {
 		if string(order.Type) == orderType {
 			filteredOrders = append(filteredOrders, order)
+			infolog.Println("Found", "order", order)
 		}
 	}
 	return filteredOrders, nil

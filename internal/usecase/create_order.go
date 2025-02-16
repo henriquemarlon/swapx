@@ -7,7 +7,7 @@ import (
 )
 
 type CreateOrderInputDTO struct {
-	Id        uint           `json:"id"`
+	Id        uint64         `json:"id"`
 	Account   common.Address `json:"account"`
 	SqrtPrice *uint256.Int   `json:"sqrt_price"`
 	Amount    *uint256.Int   `json:"amount"`
