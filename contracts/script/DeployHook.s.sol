@@ -18,20 +18,18 @@ import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {Currency} from "v4-core/src/types/Currency.sol";
 import {HookMiner} from "./HookMiner.sol";
-import { SwapXHook } from "src/SwapXHook.sol";
-import { ISwapXManager } from "src/interface/ISwapXHook.sol";
-import { SwapXManagerMock } from "../test/mocks/SwapXManagerMock.sol";
+import {SwapXHook} from "src/SwapXHook.sol";
+import {ISwapXTaskManager} from "src/interface/ISwapXHook.sol";
+import {SwapXTaskManager} from "src/SwapXTaskManager.sol";
 import {console} from "forge-std/console.sol";
 
-contract HookMiningSample is Script {
+contract DeployHook is Script {
     PoolManager manager =
-        PoolManager(0x5FbDB2315678afecb367f032d93F642f64180aa3);
+        PoolManager(0x68B1D87F95878fE05B998F19b66F4baba5De1aed);
     PoolSwapTest swapRouter =
-        PoolSwapTest(0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512);
+        PoolSwapTest(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c);
     PoolModifyLiquidityTest modifyLiquidityRouter =
-        PoolModifyLiquidityTest(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
-
-    
+        PoolModifyLiquidityTest(0xc6e7DF5E7b4f2A278906862b61205850344D4e7d);
 
     Currency token0;
     Currency token1;
@@ -40,17 +38,14 @@ contract HookMiningSample is Script {
 
     function setUp() public {
         vm.startBroadcast();
-        ISwapXManager swapXManager = ISwapXManager(address(new SwapXManagerMock()));
-
-        console.log("swapXManager", address(swapXManager));
+        ISwapXTaskManager taskManager = deployTaskManager();
+        console.log("Deployed task manager at", address(taskManager));
 
         MockERC20 tokenA = new MockERC20("Token0", "TK0", 18);
         MockERC20 tokenB = new MockERC20("Token1", "TK1", 18);
-        
+
         console.log("tokenA", address(tokenA));
         console.log("tokenB", address(tokenB));
-
-
 
         if (address(tokenA) > address(tokenB)) {
             (token0, token1) = (
@@ -75,18 +70,22 @@ contract HookMiningSample is Script {
         // Mine for hook address
         vm.stopBroadcast();
 
-        uint160 flags = uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_INITIALIZE_FLAG);
+        uint160 flags = uint160(
+            Hooks.BEFORE_SWAP_FLAG |
+                Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG |
+                Hooks.BEFORE_INITIALIZE_FLAG
+        );
 
         address CREATE2_DEPLOYER = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
         (address hookAddress, bytes32 salt) = HookMiner.find(
             CREATE2_DEPLOYER,
             flags,
             type(SwapXHook).creationCode,
-            abi.encode(address(manager), address(swapXManager))
+            abi.encode(address(manager), address(taskManager))
         );
 
         vm.startBroadcast();
-        SwapXHook hook = new SwapXHook{salt: salt}(manager, swapXManager);
+        SwapXHook hook = new SwapXHook{salt: salt}(manager, taskManager);
         require(address(hook) == hookAddress, "hook address mismatch");
 
         console.log("Deployed hook at", address(hook));
@@ -99,15 +98,23 @@ contract HookMiningSample is Script {
             hooks: hook
         });
 
-        
         manager.initialize(key, 79228162514264337593543950336);
         vm.stopBroadcast();
     }
 
+    function deployTaskManager() internal returns (ISwapXTaskManager) {
+        address taskIssuerAddress = vm.envAddress("TASK_ISSUER_ADDRESS");
+        bytes32 machineHash = vm.envBytes32("MACHINE_HASH");
+        SwapXTaskManager swapXTaskManager = new SwapXTaskManager(
+            taskIssuerAddress,
+            machineHash
+        );
+        return ISwapXTaskManager(address(swapXTaskManager));
+    }
+
     function run() public {
         vm.startBroadcast();
-        
-        
+
         modifyLiquidityRouter.modifyLiquidity(
             key,
             IPoolManager.ModifyLiquidityParams({

@@ -1,24 +1,17 @@
 package usecase
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/henriquemarlon/swapx/internal/domain"
 	"github.com/holiman/uint256"
 )
 
 type CreateOrderInputDTO struct {
-	Id        uint         `json:"id"`
-	Account   string       `json:"account"`
-	SqrtPrice *uint256.Int `json:"sqrt_price"`
-	Amount    *uint256.Int `json:"amount"`
-	Type      string       `json:"type"`
-}
-
-type CreateOrderOutputDTO struct {
-	Id        uint         `json:"id"`
-	Account   string       `json:"account"`
-	SqrtPrice *uint256.Int `json:"sqrt_price"`
-	Amount    *uint256.Int `json:"amount"`
-	Type      string       `json:"type"`
+	Id        uint           `json:"id"`
+	Account   common.Address `json:"account"`
+	SqrtPrice *uint256.Int   `json:"sqrt_price"`
+	Amount    *uint256.Int   `json:"amount"`
+	Type      string         `json:"type"`
 }
 
 type CreateOrderUseCase struct {
@@ -31,7 +24,7 @@ func NewCreateOrderUseCase(orderRepository domain.OrderRepository) *CreateOrderU
 	}
 }
 
-func (u *CreateOrderUseCase) Execute(input *CreateOrderInputDTO) (*CreateOrderOutputDTO, error) {
+func (u *CreateOrderUseCase) Execute(input *CreateOrderInputDTO) (*FindOrderOutputDTO, error) {
 	order, err := domain.NewOrder(
 		input.Id,
 		input.Account,
@@ -48,7 +41,7 @@ func (u *CreateOrderUseCase) Execute(input *CreateOrderInputDTO) (*CreateOrderOu
 		return nil, err
 	}
 
-	return &CreateOrderOutputDTO{
+	return &FindOrderOutputDTO{
 		Id:        res.Id,
 		Account:   res.Account,
 		SqrtPrice: res.SqrtPrice,

@@ -130,7 +130,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     }
 
     function executeAsyncSwap(uint256 buyOrderId, uint256 sellOrderId) public {
-
         if(buyOrderId >= buyOrders.length || sellOrderId >= sellOrders.length) {
             revert OrderDoesNotExist();
         }

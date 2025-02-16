@@ -8,9 +8,6 @@ import {Script} from "forge-std/Script.sol";
 import {PoolManager} from "v4-core/src/PoolManager.sol";
 import {PoolSwapTest} from "v4-core/src/test/PoolSwapTest.sol";
 import {PoolModifyLiquidityTest} from "v4-core/src/test/PoolModifyLiquidityTest.sol";
-import {PoolDonateTest} from "v4-core/src/test/PoolDonateTest.sol";
-import {PoolTakeTest} from "v4-core/src/test/PoolTakeTest.sol";
-import {PoolClaimsTest} from "v4-core/src/test/PoolClaimsTest.sol";
 import {MockERC20} from "solmate/src/test/utils/mocks/MockERC20.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
@@ -18,20 +15,19 @@ import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {Currency} from "v4-core/src/types/Currency.sol";
 import {HookMiner} from "./HookMiner.sol";
-import { SwapXHook } from "src/SwapXHook.sol";
-import { ISwapXManager } from "src/interface/ISwapXHook.sol";
-import { SwapXManagerMock } from "../test/mocks/SwapXManagerMock.sol";
+import {SwapXHook} from "src/SwapXHook.sol";
+import {ISwapXTaskManager} from "src/interface/ISwapXHook.sol";
+import {SwapXManagerMock} from "../test/mocks/SwapXManagerMock.sol";
 import "forge-std/console.sol";
 
-contract HookMiningSample is Script {
+contract SendBuyOrder is Script {
     PoolManager manager =
-        PoolManager(0x5FbDB2315678afecb367f032d93F642f64180aa3);
+        PoolManager(0x68B1D87F95878fE05B998F19b66F4baba5De1aed);
     PoolSwapTest swapRouter =
-        PoolSwapTest(0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512);
+        PoolSwapTest(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c);
     PoolModifyLiquidityTest modifyLiquidityRouter =
-        PoolModifyLiquidityTest(0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0);
-
-    SwapXHook hook = SwapXHook(0x614439a0d066DE45FBD7190dac6De2C702D42088);
+        PoolModifyLiquidityTest(0xc6e7DF5E7b4f2A278906862b61205850344D4e7d);
+    SwapXHook hook = SwapXHook(0x74DC4ec882a4990B11eb034D0fc9315bEB2b6088);
 
     PoolKey key;
 
@@ -41,8 +37,12 @@ contract HookMiningSample is Script {
     function setUp() public {
         vm.startBroadcast();
 
-        MockERC20 tokenA = MockERC20(0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154);
-        MockERC20 tokenB = MockERC20(0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575);
+        MockERC20 tokenA = MockERC20(
+            0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1
+        );
+        MockERC20 tokenB = MockERC20(
+            0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44
+        );
 
         if (address(tokenA) > address(tokenB)) {
             (token0, token1) = (
@@ -64,7 +64,6 @@ contract HookMiningSample is Script {
         tokenA.mint(msg.sender, 100 * 10 ** 18);
         tokenB.mint(msg.sender, 100 * 10 ** 18);
 
-
         key = PoolKey({
             currency0: token0,
             currency1: token1,
@@ -79,17 +78,25 @@ contract HookMiningSample is Script {
     function run() public {
         vm.startBroadcast();
 
-        // buy params 
-        IPoolManager.SwapParams memory swapParams =
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -100, sqrtPriceLimitX96: 56022770974786139918731938227});
-        
-        PoolSwapTest.TestSettings memory testSettings =
-            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+        // buy params
+        IPoolManager.SwapParams memory swapParams = IPoolManager.SwapParams({
+            zeroForOne: true,
+            amountSpecified: -100,
+            sqrtPriceLimitX96: 56022770974786139918731938227
+        });
+
+        PoolSwapTest.TestSettings memory testSettings = PoolSwapTest
+            .TestSettings({takeClaims: false, settleUsingBurn: false});
 
         uint256 sqrtPrice = 1000000000000000000;
 
-        swapRouter.swap(key, swapParams, testSettings, abi.encode(sqrtPrice, msg.sender));
-        
+        swapRouter.swap(
+            key,
+            swapParams,
+            testSettings,
+            abi.encode(sqrtPrice, msg.sender)
+        );
+
         vm.stopBroadcast();
     }
 }

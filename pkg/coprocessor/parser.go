@@ -53,8 +53,8 @@ func EvmAdvanceParser(hexInput string) (AdvanceResponse, error) {
 	}
 
 	chainId := args[0].(*big.Int).Uint64()
-	taskManager := args[1].(common.Address).Hex()
-	msgSender := args[2].(common.Address).Hex()
+	taskManager := args[1].(common.Address)
+	msgSender := args[2].(common.Address)
 	blockHash := fmt.Sprintf("0x%x", args[3].([32]byte))
 	blockNumber := args[4].(*big.Int).Uint64()
 	blockTimestamp := args[5].(*big.Int).Uint64()

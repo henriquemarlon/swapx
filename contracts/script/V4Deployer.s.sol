@@ -15,9 +15,7 @@ contract V4Deployer is Script {
     function run() public {
         vm.startBroadcast();
 
-        address ownerManager = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266; // anvil 1st test account
-
-
+        address ownerManager = 0xa0Ee7A142d267C1f36714E4a8F75612F20a79720; // anvil last test account
 
         PoolManager manager = new PoolManager(ownerManager);
         console.log("Deployed PoolManager at", address(manager));
@@ -30,12 +28,12 @@ contract V4Deployer is Script {
             "Deployed PoolModifyLiquidityTest at",
             address(modifyLiquidityRouter)
         );
-        PoolDonateTest donateRouter = new PoolDonateTest(manager);
-        console.log("Deployed PoolDonateTest at", address(donateRouter));
-        PoolTakeTest takeRouter = new PoolTakeTest(manager);
-        console.log("Deployed PoolTakeTest at", address(takeRouter));
-        PoolClaimsTest claimsRouter = new PoolClaimsTest(manager);
-        console.log("Deployed PoolClaimsTest at", address(claimsRouter));
+        // PoolDonateTest donateRouter = new PoolDonateTest(manager);
+        // console.log("Deployed PoolDonateTest at", address(donateRouter));
+        // PoolTakeTest takeRouter = new PoolTakeTest(manager);
+        // console.log("Deployed PoolTakeTest at", address(takeRouter));
+        // PoolClaimsTest claimsRouter = new PoolClaimsTest(manager);
+        // console.log("Deployed PoolClaimsTest at", address(claimsRouter));
 
         // Anything else you need to do like minting mock ERC20s or initializing a pool
         // you need to do directly here as well without using Deployers

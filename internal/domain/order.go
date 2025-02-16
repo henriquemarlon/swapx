@@ -3,10 +3,12 @@ package domain
 import (
 	"errors"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/holiman/uint256"
 )
 
 var (
+	ErrNoMatch      = errors.New("no match found")
 	ErrInvalidOrder = errors.New("invalid order")
 	ErrOderNotFound = errors.New("order not found")
 )
@@ -26,14 +28,14 @@ type OrderRepository interface {
 }
 
 type Order struct {
-	Id        uint         `json:"id"`
-	Account   string       `json:"account"`
-	SqrtPrice *uint256.Int `json:"sqrt_price"`
-	Amount    *uint256.Int `json:"amount"`
-	Type      OrderType    `json:"type"`
+	Id        uint           `json:"id"`
+	Account   common.Address `json:"account"`
+	SqrtPrice *uint256.Int   `json:"sqrt_price"`
+	Amount    *uint256.Int   `json:"amount"`
+	Type      OrderType      `json:"type"`
 }
 
-func NewOrder(id uint, account string, sqrtPrice, amount *uint256.Int, orderType OrderType) (*Order, error) {
+func NewOrder(id uint, account common.Address, sqrtPrice, amount *uint256.Int, orderType OrderType) (*Order, error) {
 	order := &Order{
 		Id:        id,
 		Account:   account,
@@ -48,7 +50,7 @@ func NewOrder(id uint, account string, sqrtPrice, amount *uint256.Int, orderType
 }
 
 func (o *Order) Validate() error {
-	if o.Id == 0 || o.Account == "" || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 {
+	if o.Id == 0 || o.Account == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 {
 		return ErrInvalidOrder
 	}
 	return nil

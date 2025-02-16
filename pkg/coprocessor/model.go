@@ -2,6 +2,8 @@ package coprocessor
 
 import (
 	"encoding/json"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type FinishRequest struct {
@@ -15,13 +17,13 @@ type FinishResponse struct {
 
 type AdvanceResponse struct {
 	Metadata struct {
-		ChainId     uint64 `json:"chain_id"`
-		TaskManager string `json:"task_manager"`
-		MsgSender   string `json:"msg_sender"`
-		BlockHash   string `json:"block_hash"`
-		BlockNumber uint64 `json:"block_number"`
-		Timestamp   uint64 `json:"timestamp"`
-		PrevRandao  string `json:"prev_randao"`
+		ChainId     uint64         `json:"chain_id"`
+		TaskManager common.Address `json:"task_manager"`
+		MsgSender   common.Address `json:"msg_sender"`
+		BlockHash   string         `json:"block_hash"`
+		BlockNumber uint64         `json:"block_number"`
+		Timestamp   uint64         `json:"timestamp"`
+		PrevRandao  string         `json:"prev_randao"`
 	} `json:"metadata"`
 	Payload string `json:"payload"`
 }
