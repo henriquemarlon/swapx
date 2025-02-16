@@ -67,7 +67,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     function _beforeInitialize(address, PoolKey calldata key, uint160) internal virtual override returns (bytes4) {
         currency0 = key.currency0;
         currency1 = key.currency1;
-        poolKey = key;
         return this.beforeInitialize.selector;
     }
 
