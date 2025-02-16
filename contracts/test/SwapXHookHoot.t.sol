@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.28;
+pragma solidity 0.8.26;
 
 import "forge-std/Test.sol";
 import {Deployers} from "v4-core/test/utils/Deployers.sol";
@@ -18,7 +18,7 @@ import {PoolId} from "v4-core/src/types/PoolId.sol";
 import {Pool} from "v4-core/src/libraries/Pool.sol";
 import {MockERC20} from "solmate/src/test/utils/mocks/MockERC20.sol";
 import {SwapXManagerMock} from "./mocks/SwapXManagerMock.sol";
-import {ISwapXManager} from "src/interface/ISwapXHook.sol";
+import {ISwapXTaskManager} from "src/interface/ISwapXHook.sol";
 
 contract SwapXHookTest is Test, Deployers {
     using StateLibrary for IPoolManager;
@@ -43,7 +43,7 @@ contract SwapXHookTest is Test, Deployers {
     function setUp() public {
         deployFreshManagerAndRouters();
 
-        ISwapXManager swapXManager = ISwapXManager(address(new SwapXManagerMock()));
+        ISwapXTaskManager swapXManager = ISwapXTaskManager(address(new SwapXManagerMock()));
 
         hook = SwapXHook(address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_INITIALIZE_FLAG)));
         deployCodeTo("src/SwapXHook.sol:SwapXHook", abi.encode(manager, swapXManager), address(hook));

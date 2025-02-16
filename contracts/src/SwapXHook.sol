@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity 0.8.26;
 
 import { BaseAsyncSwap } from "OpenZeppelin/uniswap-hooks/base/BaseAsyncSwap.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
@@ -9,9 +9,8 @@ import {CurrencySettler} from "OpenZeppelin/uniswap-hooks/utils/CurrencySettler.
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {BeforeSwapDelta, BeforeSwapDeltaLibrary, toBeforeSwapDelta} from "v4-core/src/types/BeforeSwapDelta.sol";
 import {SafeCast} from "v4-core/src/libraries/SafeCast.sol";
-import {ISwapXHook, ISwapXManager} from "./interface/ISwapXHook.sol";
+import {ISwapXHook, ISwapXTaskManager} from "./interface/ISwapXHook.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
-
 
 contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     using CurrencySettler for Currency;
@@ -24,7 +23,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
     PoolKey public poolKey;
 
-    ISwapXManager public swapXManager;
+    ISwapXTaskManager public swapXManager;
 
     struct Order {
         address account;
@@ -37,7 +36,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
     mapping(uint256 => bool) public buyOrderFulfilledOrCancelled; // buyOrderId => isFulfilled (buy = zeroForOne == true)
     mapping(uint256 => bool) public sellOrderFulfilledOrCancelled; // sellOrderId => isFulfilled (sell = zeroForOne == false)
-
 
     Order[] public buyOrders; // (buy = zeroForOne == true)
     Order[] public sellOrders; // (sell = zeroForOne == false)
@@ -53,7 +51,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     event BuyOrderCancelled(uint256 indexed buyOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
     event SellOrderCancelled(uint256 indexed sellOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
 
-
     // errors
 
     error OrderDoesNotExist();
@@ -63,7 +60,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     error OrderSqrtPricesDoNotMatch();
 
 
-    constructor(IPoolManager _poolManager, ISwapXManager _swapXManager) BaseAsyncSwap(_poolManager) {
+    constructor(IPoolManager _poolManager, ISwapXTaskManager _swapXManager) BaseAsyncSwap(_poolManager) {
         swapXManager = _swapXManager;
     }
 
@@ -189,8 +186,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         
         Order memory sellOrder = sellOrders[orderId];
 
-        
-
         if(sellOrder.account != msg.sender) {
             revert OnlyOrderCreatorCanCancel();
         }
@@ -206,5 +201,3 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         emit SellOrderCancelled(orderId, sellOrder.account, sellOrder.sqrtPrice, sellOrder.amount);
     }
 }
-
-

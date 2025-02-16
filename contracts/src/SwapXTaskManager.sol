@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity 0.8.26;
 
 import {Inputs} from "./common/Inputs.sol";
 import {CanonicalMachine} from "./common/CanonicalMachine.sol";
 import {CoprocessorAdapter} from "../lib/coprocessor-base-contract/src/CoprocessorAdapter.sol";
 import {SwapXHook} from "./SwapXHook.sol";
 
-contract SwapX is CoprocessorAdapter {
-
-    event TaskCreated(address indexed taskIssuer, bytes payload);
-
+contract SwapXTaskManager is CoprocessorAdapter {
 
     error InputTooLarge(
         address appContract,
@@ -47,17 +44,12 @@ contract SwapX is CoprocessorAdapter {
             );
         }
 
-        emit TaskCreated(msg.sender, input);
-
         callCoprocessor(payload);
-
     }
 
     function handleNotice(bytes32 payloadHash, bytes memory notice) internal override {
-
         (uint256 buyOrderId, uint256 sellOrderId, address hookAddress) = abi.decode(notice, (uint256, uint256, address));
         SwapXHook hook = SwapXHook(hookAddress);
-
         hook.executeAsyncSwap(buyOrderId, sellOrderId);
     }
 }
