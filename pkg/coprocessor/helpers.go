@@ -1,4 +1,4 @@
-package rollups
+package coprocessor
 
 import (
 	"bytes"

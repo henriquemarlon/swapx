@@ -7,7 +7,6 @@ import {CoprocessorAdapter} from "../lib/coprocessor-base-contract/src/Coprocess
 import {SwapXHook} from "./SwapXHook.sol";
 
 contract SwapXTaskManager is CoprocessorAdapter {
-
     error InputTooLarge(
         address appContract,
         uint256 inputLength,
@@ -23,7 +22,7 @@ contract SwapXTaskManager is CoprocessorAdapter {
         //TODO: define tokenomics model
 
         bytes memory input = abi.encodeCall(
-            Inputs.SwapXAdvance,
+            Inputs.EvmAdvance,
             (
                 block.chainid,
                 address(this),
@@ -31,6 +30,7 @@ contract SwapXTaskManager is CoprocessorAdapter {
                 blockhash(block.number - 1),
                 block.number,
                 block.timestamp,
+                block.prevrandao,
                 payload
             )
         );
@@ -43,7 +43,7 @@ contract SwapXTaskManager is CoprocessorAdapter {
             );
         }
 
-        callCoprocessor(payload);
+        callCoprocessor(input);
     }
 
     function handleNotice(bytes32 payloadHash, bytes memory notice) internal override {

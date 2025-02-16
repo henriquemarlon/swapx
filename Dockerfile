@@ -50,6 +50,8 @@ WORKDIR /var/opt/cartesi-app
 
 ENV PATH="/opt/cartesi/bin:${PATH}"
 
+ENV ROLLUP_HTTP_SERVER_URL="http://127.0.0.1:5004"
+
 COPY --from=build /bin/app app
 
 ENTRYPOINT ["rollup-init"]

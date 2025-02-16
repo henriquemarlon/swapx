@@ -3,17 +3,17 @@ package configs
 import (
 	"sync"
 
-	"github.com/henriquemarlon/swapx"
+	"github.com/henriquemarlon/swapx/internal/domain"
 )
 
 type InMemoryDB struct {
-	ToDos map[uint]*domain.ToDo
-	Lock  *sync.RWMutex
+	Orders map[uint]*domain.Order
+	Lock   *sync.RWMutex
 }
 
 func SetupInMemoryDB() (*InMemoryDB, error) {
 	return &InMemoryDB{
-		ToDos: make(map[uint]*domain.ToDo),
-		Lock:  &sync.RWMutex{},
+		Orders: make(map[uint]*domain.Order),
+		Lock:   &sync.RWMutex{},
 	}, nil
 }

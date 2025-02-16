@@ -101,7 +101,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
             } else {
                 emit SellOrderCreated(sellOrders.length, sender, sqrtPrice, specifiedAmount);
                 sellOrders.push(order);
-                swapXTaskManager.createTask(abi.encode(order, uint256(1), sellOders.length));
+                swapXTaskManager.createTask(abi.encode(order, uint256(1), sellOrders.length));
             }
             
             // Return delta that nets out specified amount to 0.

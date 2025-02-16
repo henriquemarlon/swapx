@@ -1,4 +1,4 @@
-package rollups
+package coprocessor
 
 import (
 	"encoding/json"
@@ -14,17 +14,16 @@ type FinishResponse struct {
 }
 
 type AdvanceResponse struct {
-	Metadata Metadata        `json:"metadata"`
-	Payload  json.RawMessage `json:"payload"`
-}
-
-type Metadata struct {
-	ChainId     uint64 `json:"chain_id"`
-	TaskManager string `json:"task_manager"`
-	MsgSender   string `json:"msg_sender"`
-	BlockHash   string `json:"block_hash"`
-	BlockNumber uint64 `json:"block_number"`
-	Timestamp   uint64 `json:"timestamp"`
+	Metadata struct {
+		ChainId     uint64 `json:"chain_id"`
+		TaskManager string `json:"task_manager"`
+		MsgSender   string `json:"msg_sender"`
+		BlockHash   string `json:"block_hash"`
+		BlockNumber uint64 `json:"block_number"`
+		Timestamp   uint64 `json:"timestamp"`
+		PrevRandao  string `json:"prev_randao"`
+	} `json:"metadata"`
+	Payload string `json:"payload"`
 }
 
 type NoticeRequest struct {

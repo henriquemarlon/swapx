@@ -10,13 +10,10 @@ env:
 	@echo "Environment file created at ./.env.develop"
 	$(END_LOG)
 
-.PHONY: build
-build:
+.PHONY: infra
+infra:
 	$(START_LOG)
-	@docker build \
-		-t machine:latest \
-		-f ./build/Dockerfile.machine .
-	@cartesi build --from-image machine:latest
+	@cd third_party/cartesi-coprocessor; docker compose -f docker-compose-devnet.yaml up --build
 	$(END_LOG)
 
 .PHONY: local
@@ -29,13 +26,14 @@ local:
 									 -v
 	$(END_LOG)
 
-.PHONY: contracts
-contracts:
+.PHONY: task_manager
+task_manager:
 	$(START_LOG)
-	@forge script ./contracts/script/SwapX.s.sol --broadcast \
+	@forge script ./contracts/script/DeployTaskManager.s.sol --broadcast \
 									 --root contracts \
 									 --rpc-url $(RPC_URL) \
-									 --private-key $(PRIVATE_KEY)
+									 --private-key $(PRIVATE_KEY) \
+									 -v
 	$(END_LOG)
 
 .PHONY: test
