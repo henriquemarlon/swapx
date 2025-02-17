@@ -22,12 +22,12 @@ import "forge-std/console.sol";
 
 contract SendBuyOrder is Script {
     PoolManager manager =
-        PoolManager(0x68B1D87F95878fE05B998F19b66F4baba5De1aed);
+        PoolManager(0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f);
     PoolSwapTest swapRouter =
-        PoolSwapTest(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c);
+        PoolSwapTest(0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07);
     PoolModifyLiquidityTest modifyLiquidityRouter =
-        PoolModifyLiquidityTest(0xc6e7DF5E7b4f2A278906862b61205850344D4e7d);
-    SwapXHook hook = SwapXHook(0x0e75A2f72c53548E5b45E8a03179C69D6C0Ce088);
+        PoolModifyLiquidityTest(0x162A433068F51e18b7d13932F27e66a3f99E6890);
+    SwapXHook hook = SwapXHook(0xd41bF6Dab33ACc715E33Bfab31a68dD2dC81a088);
 
     PoolKey key;
 
@@ -38,10 +38,10 @@ contract SendBuyOrder is Script {
         vm.startBroadcast();
 
         MockERC20 tokenA = MockERC20(
-            0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1
+            0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f
         );
         MockERC20 tokenB = MockERC20(
-            0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44
+            0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d
         );
 
         if (address(tokenA) > address(tokenB)) {

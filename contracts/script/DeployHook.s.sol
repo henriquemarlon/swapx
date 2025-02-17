@@ -25,11 +25,11 @@ import {console} from "forge-std/console.sol";
 
 contract DeployHook is Script {
     PoolManager manager =
-        PoolManager(0x68B1D87F95878fE05B998F19b66F4baba5De1aed);
+        PoolManager(0x1429859428C0aBc9C2C47C8Ee9FBaf82cFA0F20f);
     PoolSwapTest swapRouter =
-        PoolSwapTest(0x3Aa5ebB10DC797CAC828524e59A333d0A371443c);
+        PoolSwapTest(0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07);
     PoolModifyLiquidityTest modifyLiquidityRouter =
-        PoolModifyLiquidityTest(0xc6e7DF5E7b4f2A278906862b61205850344D4e7d);
+        PoolModifyLiquidityTest(0x162A433068F51e18b7d13932F27e66a3f99E6890);
 
     Currency token0;
     Currency token1;
