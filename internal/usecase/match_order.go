@@ -1,13 +1,11 @@
 package usecase
 
 import (
-	"encoding/hex"
 	"errors"
 	"log"
 	"math/big"
 	"os"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/henriquemarlon/swapx/internal/domain"
 	"github.com/henriquemarlon/swapx/internal/infra/service"
@@ -71,41 +69,20 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 		return nil, err
 	}
 
-	msgSender := metadata.MsgSender
-	storageSlotBuyOrders := common.BytesToHash(big.NewInt(8).Bytes())
-	// storageSlotSellOrders := common.BytesToHash(big.NewInt(9).Bytes())
-	blockHash := common.HexToHash(metadata.BlockHash)
-	if len(blockHash) != 32 {
-		return nil, errors.New("invalid block hash format")
-	}
-	infolog.Printf("Data: %v, %v, %v\n", storageSlotBuyOrders, msgSender, blockHash)
-
-	addressType, _ := abi.NewType("address", "", nil)
-	bytes32Type, _ := abi.NewType("bytes32", "", nil)
-
-	outputArgs := abi.Arguments{
-		{Type: bytes32Type},
-		{Type: addressType},
-		{Type: bytes32Type},
-	}
-
-	encodedData, err := outputArgs.Pack(blockHash, msgSender, storageSlotBuyOrders)
+	factory := service.NewGioHandlerFactory("http://localhost:8080")
+	handler, err := factory.NewGioHandler(0x27)
 	if err != nil {
 		return nil, err
 	}
 
-	infolog.Printf("Encoded data: %v\n", encodedData)
-	infolog.Printf("Encoded data hex: %v\n", hex.EncodeToString(encodedData))
-
-	res, err := service.GetListDataStorageAt(&service.GioRequest{
-		Domain: 0x27,
-		Id:     "0x" + hex.EncodeToString(encodedData),
-	})
+	_, err = handler.HandleStorageAt(
+		common.HexToHash(metadata.BlockHash),
+		metadata.MsgSender,
+		common.BytesToHash(big.NewInt(8).Bytes()), // Change to a constant
+	)
 	if err != nil {
 		return nil, err
 	}
-
-	infolog.Printf("Data storage response: %v\n", res)
 
 	return &MatchOrderOutputDTO{
 		BuyOrderId:  big.NewInt(12),
