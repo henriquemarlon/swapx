@@ -30,7 +30,6 @@ func NewOrderHandler(orderRepository domain.OrderRepository) *OrderBookHandler {
 func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse) error {
 	addressType, _ := abi.NewType("address", "", nil)
 	uint256Type, _ := abi.NewType("uint256", "", nil)
-
 	inputArgs := abi.Arguments{
 		{Type: uint256Type},
 		{Type: addressType},
@@ -53,7 +52,6 @@ func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse)
 	res, err := matchOrder.Execute(&usecase.MatchOrderInputDTO{
 		UnpackedArgs: values,
 	}, input.Metadata)
-
 	if err != nil {
 		if err == domain.ErrNoMatch {
 			infolog.Println("No match found")
@@ -61,15 +59,18 @@ func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse)
 		}
 		return err
 	}
+
 	outputArgs := abi.Arguments{
 		{Type: addressType},
 		{Type: uint256Type},
 		{Type: uint256Type},
 	}
+
 	encodedData, err := outputArgs.Pack(input.Metadata.MsgSender, res.BuyOrderId, res.SellOrderId)
 	if err != nil {
 		return err
 	}
+
 	coprocessor.SendNotice(&coprocessor.NoticeRequest{
 		Payload: "0x" + common.Bytes2Hex(encodedData),
 	})

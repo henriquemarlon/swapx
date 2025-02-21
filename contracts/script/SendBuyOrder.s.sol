@@ -27,7 +27,7 @@ contract SendBuyOrder is Script {
         PoolSwapTest(0xB0D4afd8879eD9F52b28595d31B441D079B2Ca07);
     PoolModifyLiquidityTest modifyLiquidityRouter =
         PoolModifyLiquidityTest(0x162A433068F51e18b7d13932F27e66a3f99E6890);
-    SwapXHook hook = SwapXHook(0xd41bF6Dab33ACc715E33Bfab31a68dD2dC81a088);
+    SwapXHook hook = SwapXHook(0x4ec1eEe0695727B02f460406cfFEAb07138E2088);
 
     PoolKey key;
 
@@ -38,10 +38,10 @@ contract SendBuyOrder is Script {
         vm.startBroadcast();
 
         MockERC20 tokenA = MockERC20(
-            0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f
+            0x7A9Ec1d04904907De0ED7b6839CcdD59c3716AC9
         );
         MockERC20 tokenB = MockERC20(
-            0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d
+            0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff
         );
 
         if (address(tokenA) > address(tokenB)) {

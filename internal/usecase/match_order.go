@@ -15,6 +15,12 @@ import (
 
 var (
 	infolog = log.New(os.Stderr, "[ info ]  ", log.Lshortfile)
+	errorlog = log.New(os.Stderr, "[ error ]  ", log.Lshortfile)
+)
+
+const (
+	BUY_ORDERS_STORAGE_SLOT  = 8
+	SELL_ORDERS_STORAGE_SLOT = 9
 )
 
 type MatchOrderUseCase struct {
@@ -64,24 +70,48 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 		return nil, err
 	}
 
-	_, err = h.OrderRepository.FindAllOrders()
-	if err != nil {
-		return nil, err
-	}
-
 	factory := service.NewGioHandlerFactory("http://localhost:8080")
 	handler, err := factory.NewGioHandler(0x27)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = handler.HandleStorageAt(
-		common.HexToHash(metadata.BlockHash),
-		metadata.MsgSender,
-		common.BytesToHash(big.NewInt(8).Bytes()), // Change to a constant
-	)
-	if err != nil {
-		return nil, err
+	infolog.Print("Pass 1")
+
+	// orders := []domain.Order{}
+
+	for _, storageSlot := range []int{BUY_ORDERS_STORAGE_SLOT, SELL_ORDERS_STORAGE_SLOT} {
+		infolog.Print("Pass 2")
+
+		res, err := handler.HandleStorageAt(
+			common.HexToHash(metadata.BlockHash),
+			metadata.MsgSender,
+			common.BytesToHash(big.NewInt(int64(storageSlot)).Bytes()),
+		)
+
+		infolog.Printf("Response: %v", res)
+		if err != nil {
+			errorlog.Printf("failed to get storage at slot %d: %v", storageSlot, err)
+			return nil, err
+		}
+
+		// arrayLengthInt := new(big.Int).SetBytes([]byte(res.Response))
+		// for i := int64(0); i < arrayLengthInt.Int64(); i++ {
+		// 	elementSlot := new(big.Int).Add(new(big.Int).SetBytes(big.NewInt(int64(storageSlot)).Bytes()), big.NewInt(i))
+
+		// 	data, err := handler.HandleStorageAt(
+		// 		common.HexToHash(metadata.BlockHash),
+		// 		metadata.MsgSender,
+		// 		common.BytesToHash(elementSlot.Bytes()),
+		// 	)
+		// 	if err != nil {
+		// 		return nil, fmt.Errorf("failed to get order at index %d: %w", i, err)
+		// 	}
+
+		// 	infolog.Printf("Order data: %+v", data)
+
+		//  orders = append(orders, order)
+		// }
 	}
 
 	return &MatchOrderOutputDTO{

@@ -2,14 +2,20 @@ package service
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+)
+
+var (
+	infolog = log.New(os.Stderr, "[ info ]  ", log.Lshortfile)
 )
 
 type GioGetStorage struct {
@@ -18,6 +24,7 @@ type GioGetStorage struct {
 }
 
 func (h *GioGetStorage) HandleStorageAt(blockHash common.Hash, address common.Address, slot common.Hash) (*GioResponse, error) {
+	infolog.Printf("Handling storage at block %s, address %s, slot %s\n", blockHash.Hex(), address.Hex(), slot.Hex())
 	client := &http.Client{}
 
 	addressType, _ := abi.NewType("address", "", nil)
@@ -38,7 +45,17 @@ func (h *GioGetStorage) HandleStorageAt(blockHash common.Hash, address common.Ad
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", h.BaseUrl+"/gio", bytes.NewBuffer(encodedData))
+	infolog.Printf("Encoded data: %v\n", encodedData)
+	hexEncoded := hex.EncodeToString(encodedData)
+	reqBody, err := json.Marshal(GioRequest{
+		Domain: 0x27,
+		Id:     "0x" + hexEncoded,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", "http://127.0.0.1:5004/gio", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}
@@ -50,20 +67,20 @@ func (h *GioGetStorage) HandleStorageAt(blockHash common.Hash, address common.Ad
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusAccepted {
-		body, _ := io.ReadAll(res.Body)
-		return nil, fmt.Errorf("unexpected status code: %d, response: %s", res.StatusCode, string(body))
-	}
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	var gioResp GioResponse
-	if err := json.Unmarshal(body, &gioResp); err != nil {
-		return nil, err
+	if res.StatusCode != http.StatusOK {
+		infolog.Printf("Response status: %d, body: %s\n", res.StatusCode, string(body))
+		return nil, errors.New("unexpected status code: " + res.Status + ", response: " + string(body))
 	}
 
-	return &gioResp, nil
+	var gioResponse *GioResponse
+	if err := json.Unmarshal(body, &gioResponse); err != nil {
+		return nil, errors.New("invalid JSON response format: " + err.Error())
+	}
+
+	return gioResponse, nil
 }
