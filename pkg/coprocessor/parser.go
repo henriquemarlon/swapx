@@ -1,7 +1,9 @@
 package coprocessor
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"math/big"
 	"strings"
 
@@ -70,5 +72,11 @@ func EvmAdvanceParser(hexInput string) (AdvanceResponse, error) {
 	response.Metadata.PrevRandao = prevRandao
 	response.Payload = decodedPayload
 
+	jsonBytes, err := json.Marshal(response)
+	if err != nil {
+		return response, fmt.Errorf("error marshaling response: %v", err)
+	}
+	log.Printf("Advance response: %s", string(jsonBytes))
+	
 	return response, nil
 }

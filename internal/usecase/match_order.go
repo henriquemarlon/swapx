@@ -4,18 +4,12 @@ import (
 	"errors"
 	"log"
 	"math/big"
-	"os"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/henriquemarlon/swapx/internal/domain"
 	"github.com/henriquemarlon/swapx/internal/infra/service"
 	"github.com/henriquemarlon/swapx/pkg/coprocessor"
 	"github.com/holiman/uint256"
-)
-
-var (
-	infolog = log.New(os.Stderr, "[ info ]  ", log.Lshortfile)
-	errorlog = log.New(os.Stderr, "[ error ]  ", log.Lshortfile)
 )
 
 const (
@@ -76,12 +70,12 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 		return nil, err
 	}
 
-	infolog.Print("Pass 1")
+	log.Print("Pass 1")
 
 	// orders := []domain.Order{}
 
 	for _, storageSlot := range []int{BUY_ORDERS_STORAGE_SLOT, SELL_ORDERS_STORAGE_SLOT} {
-		infolog.Print("Pass 2")
+		log.Print("Pass 2")
 
 		res, err := handler.HandleStorageAt(
 			common.HexToHash(metadata.BlockHash),
@@ -89,9 +83,9 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 			common.BytesToHash(big.NewInt(int64(storageSlot)).Bytes()),
 		)
 
-		infolog.Printf("Response: %v", res)
+		log.Printf("Response: %v", res)
 		if err != nil {
-			errorlog.Printf("failed to get storage at slot %d: %v", storageSlot, err)
+			log.Printf("failed to get storage at slot %d: %v", storageSlot, err)
 			return nil, err
 		}
 
@@ -108,7 +102,7 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 		// 		return nil, fmt.Errorf("failed to get order at index %d: %w", i, err)
 		// 	}
 
-		// 	infolog.Printf("Order data: %+v", data)
+		// 	log.Printf("Order data: %+v", data)
 
 		//  orders = append(orders, order)
 		// }

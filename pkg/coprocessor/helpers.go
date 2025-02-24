@@ -2,7 +2,6 @@ package coprocessor
 
 import (
 	"bytes"
-	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -45,17 +44,4 @@ func SendException(exception *ExceptionRequest) (*http.Response, error) {
 	}
 
 	return SendPost("exception", body)
-}
-
-func Hex2Str(hx string) (string, error) {
-	str, err := hex.DecodeString(hx[2:])
-	if err != nil {
-		return string(str), err
-	}
-	return string(str), nil
-}
-
-func Str2Hex(str string) string {
-	hx := hex.EncodeToString([]byte(str))
-	return "0x" + string(hx)
 }

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
-	"os"
+	"log/slog"
 	"strconv"
 	"time"
 
@@ -30,12 +30,7 @@ var (
 func init() {
 	Cmd.Flags().BoolVar(&verbose, "verbose", false, "Show detailed logs")
 	Cmd.PreRun = func(cmd *cobra.Command, args []string) {
-		if verbose {
-			log.SetOutput(os.Stdout)
-			log.SetFlags(log.Lshortfile | log.LstdFlags)
-		} else {
-			log.SetOutput(io.Discard)
-		}
+		configs.ConfigureLogger(slog.LevelInfo)
 	}
 }
 

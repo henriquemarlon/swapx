@@ -8,14 +8,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-)
-
-var (
-	infolog = log.New(os.Stderr, "[ info ]  ", log.Lshortfile)
 )
 
 type GioGetStorage struct {
@@ -24,7 +19,7 @@ type GioGetStorage struct {
 }
 
 func (h *GioGetStorage) HandleStorageAt(blockHash common.Hash, address common.Address, slot common.Hash) (*GioResponse, error) {
-	infolog.Printf("Handling storage at block %s, address %s, slot %s\n", blockHash.Hex(), address.Hex(), slot.Hex())
+	log.Printf("Handling storage at block %s, address %s, slot %s\n", blockHash.Hex(), address.Hex(), slot.Hex())
 	client := &http.Client{}
 
 	addressType, _ := abi.NewType("address", "", nil)
@@ -45,7 +40,7 @@ func (h *GioGetStorage) HandleStorageAt(blockHash common.Hash, address common.Ad
 		return nil, err
 	}
 
-	infolog.Printf("Encoded data: %v\n", encodedData)
+	log.Printf("Encoded data: %v\n", encodedData)
 	hexEncoded := hex.EncodeToString(encodedData)
 	reqBody, err := json.Marshal(GioRequest{
 		Domain: 0x27,
@@ -73,7 +68,7 @@ func (h *GioGetStorage) HandleStorageAt(blockHash common.Hash, address common.Ad
 	}
 
 	if res.StatusCode != http.StatusOK {
-		infolog.Printf("Response status: %d, body: %s\n", res.StatusCode, string(body))
+		log.Printf("Response status: %d, body: %s\n", res.StatusCode, string(body))
 		return nil, errors.New("unexpected status code: " + res.Status + ", response: " + string(body))
 	}
 

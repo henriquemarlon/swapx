@@ -3,7 +3,6 @@ package cartesi
 import (
 	"encoding/hex"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -11,10 +10,6 @@ import (
 	"github.com/henriquemarlon/swapx/internal/domain"
 	"github.com/henriquemarlon/swapx/internal/usecase"
 	"github.com/henriquemarlon/swapx/pkg/coprocessor"
-)
-
-var (
-	infolog = log.New(os.Stderr, "[ info ]  ", log.Lshortfile)
 )
 
 type OrderBookHandler struct {
@@ -54,7 +49,7 @@ func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse)
 	}, input.Metadata)
 	if err != nil {
 		if err == domain.ErrNoMatch {
-			infolog.Println("No match found")
+			log.Printf("No match found for order: %v", input.Metadata)
 			return nil
 		}
 		return err
