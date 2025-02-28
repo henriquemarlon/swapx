@@ -11,20 +11,26 @@ import (
 	"github.com/henriquemarlon/swapx/configs"
 	"github.com/henriquemarlon/swapx/internal/domain"
 	"github.com/henriquemarlon/swapx/internal/infra/cartesi"
-	"github.com/henriquemarlon/swapx/internal/infra/service"
 	"github.com/henriquemarlon/swapx/internal/infra/repository"
+	"github.com/henriquemarlon/swapx/internal/infra/service"
+	"github.com/henriquemarlon/swapx/pkg/gio"
 )
 
 // Injectors from wire.go:
 
-func NewOrderHandler(db *configs.InMemoryDB) (*cartesi.OrderBookHandler, error) {
+func NewOrderBookHandler(db *configs.InMemoryDB, rollupServerUrl string) (*cartesi.OrderBookHandler, error) {
 	orderRepositoryInMemory := repository.NewOrderRepositoryInMemory(db)
-	hookStorageService := service.NewHookStorageService()
+	gioHandlerFactory := gio.NewGioHandlerFactory(rollupServerUrl)
+	hookStorageService := service.NewHookStorageService(gioHandlerFactory)
 	orderBookHandler := cartesi.NewOrderHandler(orderRepositoryInMemory, hookStorageService)
 	return orderBookHandler, nil
 }
 
 // wire.go:
+
+var setHookStorageService = wire.NewSet(service.NewHookStorageService, wire.Bind(new(service.HookStorageServiceInterface), new(*service.HookStorageService)))
+
+var setGioHandlerFactory = wire.NewSet(gio.NewGioHandlerFactory)
 
 var setOrderRepositoryDependency = wire.NewSet(repository.NewOrderRepositoryInMemory, wire.Bind(new(domain.OrderRepository), new(*repository.OrderRepositoryInMemory)))
 

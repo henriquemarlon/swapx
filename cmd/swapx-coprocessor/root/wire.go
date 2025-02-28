@@ -9,6 +9,17 @@ import (
 	"github.com/henriquemarlon/swapx/internal/domain"
 	"github.com/henriquemarlon/swapx/internal/infra/cartesi"
 	"github.com/henriquemarlon/swapx/internal/infra/repository"
+	"github.com/henriquemarlon/swapx/internal/infra/service"
+	"github.com/henriquemarlon/swapx/pkg/gio"
+)
+
+var setHookStorageService = wire.NewSet(
+	service.NewHookStorageService,
+	wire.Bind(new(service.HookStorageServiceInterface), new(*service.HookStorageService)),
+)
+
+var setGioHandlerFactory = wire.NewSet(
+	gio.NewGioHandlerFactory,
 )
 
 var setOrderRepositoryDependency = wire.NewSet(
@@ -20,10 +31,12 @@ var setOrderHandler = wire.NewSet(
 	cartesi.NewOrderHandler,
 )
 
-func NewOrderHandler(db *configs.InMemoryDB) (*cartesi.OrderBookHandler, error) {
+func NewOrderBookHandler(db *configs.InMemoryDB, rollupServerUrl string) (*cartesi.OrderBookHandler, error) {
 	wire.Build(
 		setOrderRepositoryDependency,
+		setGioHandlerFactory,
+		setHookStorageService,
 		setOrderHandler,
 	)
-	return nil, nil
+	return &cartesi.OrderBookHandler{}, nil
 }

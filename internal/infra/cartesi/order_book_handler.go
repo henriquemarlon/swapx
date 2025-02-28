@@ -14,13 +14,13 @@ import (
 )
 
 type OrderBookHandler struct {
-	OrderRepository domain.OrderRepository
+	OrderRepository             domain.OrderRepository
 	HookStorageServiceInterface service.HookStorageServiceInterface
 }
 
 func NewOrderHandler(orderRepository domain.OrderRepository, hookStorageServiceInterface service.HookStorageServiceInterface) *OrderBookHandler {
 	return &OrderBookHandler{
-		OrderRepository: orderRepository,
+		OrderRepository:             orderRepository,
 		HookStorageServiceInterface: hookStorageServiceInterface,
 	}
 }

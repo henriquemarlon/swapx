@@ -42,7 +42,7 @@ func (h *GioGetStorage) Handle(blockHash common.Hash, address common.Address, sl
 
 	log.Printf("Request body: %s\n", string(reqBody))
 
-	req, err := http.NewRequest("POST", h.BaseUrl + "/gio", bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest("POST", h.BaseUrl+"/gio", bytes.NewBuffer(reqBody))
 	if err != nil {
 		return nil, err
 	}

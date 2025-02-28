@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"math/big"
-	"os"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -16,21 +15,22 @@ var (
 	ErrNoOrdersFound = errors.New("no orders found")
 )
 
-var ROLLUP_HTTP_SERVER_URL = os.Getenv("ROLLUP_HTTP_SERVER_URL")
-
-type HookStorageService struct{}
+type HookStorageService struct {
+	GioHandlerFactory gio.GioHandlerFactory
+}
 
 type HookStorageServiceInterface interface {
-	FindAllOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error)
+	FindOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error)
 }
 
-func NewHookStorageService() *HookStorageService {
-	return &HookStorageService{}
+func NewHookStorageService(gioHandlerFactory gio.GioHandlerFactory) *HookStorageService {
+	return &HookStorageService{
+		GioHandlerFactory: gioHandlerFactory,
+	}
 }
 
-func (s *HookStorageService) FindAllOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error) {
-	factory := gio.NewGioHandlerFactory(ROLLUP_HTTP_SERVER_URL)
-	handler, err := factory.NewGioHandler(0x27)
+func (s *HookStorageService) FindOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error) {
+	handler, err := s.GioHandlerFactory.NewGioHandler(0x27)
 	if err != nil {
 		return nil, err
 	}

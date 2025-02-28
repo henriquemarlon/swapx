@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"log/slog"
+	"os"
 	"strconv"
 	"time"
 
@@ -25,6 +26,7 @@ var (
 		Long:  `EVM Linux Coprocessor as an orderbook for UniswapV4 Hooks`,
 		Run:   run,
 	}
+	ROLLUP_HTTP_SERVER_URL = os.Getenv("ROLLUP_HTTP_SERVER_URL")
 )
 
 func init() {
@@ -41,7 +43,7 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	log.Println("In-memory database initialized")
 
-	oh, err := NewOrderHandler(db)
+	oh, err := NewOrderBookHandler(db, ROLLUP_HTTP_SERVER_URL)
 	if err != nil {
 		log.Fatalf("Failed to initialize OrderHandler: %v", err)
 	}

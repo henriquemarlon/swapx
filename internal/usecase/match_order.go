@@ -96,10 +96,10 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 	}
 
 	// -----------------------------------------------------------------------------
-	// Find all previous orders
+	// Find all previous orders ( Base layer access )
 	// -----------------------------------------------------------------------------
 
-	buyOrders, err := h.HookContractService.FindAllOrdersBySlot(
+	buyOrders, err := h.HookContractService.FindOrdersBySlot(
 		metadata.MsgSender,
 		common.HexToHash(metadata.BlockHash),
 		common.BigToHash(big.NewInt(BUY_ORDERS_STORAGE_SLOT)),
@@ -118,7 +118,7 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 		}
 	}
 
-	sellOrders, err := h.HookContractService.FindAllOrdersBySlot(
+	sellOrders, err := h.HookContractService.FindOrdersBySlot(
 		metadata.MsgSender,
 		common.HexToHash(metadata.BlockHash),
 		common.BigToHash(big.NewInt(SELL_ORDERS_STORAGE_SLOT)),

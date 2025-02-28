@@ -77,6 +77,6 @@ func EvmAdvanceParser(hexInput string) (AdvanceResponse, error) {
 		return response, fmt.Errorf("error marshaling response: %v", err)
 	}
 	log.Printf("Advance response: %s", string(jsonBytes))
-	
+
 	return response, nil
 }
