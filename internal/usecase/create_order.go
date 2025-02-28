@@ -25,12 +25,13 @@ func NewCreateOrderUseCase(orderRepository domain.OrderRepository) *CreateOrderU
 }
 
 func (u *CreateOrderUseCase) Execute(input *CreateOrderInputDTO) (*FindOrderOutputDTO, error) {
+	orderType := domain.OrderType(input.Type)
 	order, err := domain.NewOrder(
 		input.Id,
 		input.Account,
 		input.SqrtPrice,
 		input.Amount,
-		domain.OrderType(input.Type),
+		&orderType,
 	)
 	if err != nil {
 		return nil, err
@@ -43,9 +44,9 @@ func (u *CreateOrderUseCase) Execute(input *CreateOrderInputDTO) (*FindOrderOutp
 
 	return &FindOrderOutputDTO{
 		Id:        res.Id,
-		Account:   res.Account,
+		Hook:      res.Hook,
 		SqrtPrice: res.SqrtPrice,
 		Amount:    res.Amount,
-		Type:      string(res.Type),
+		Type:      string(*res.Type),
 	}, nil
 }

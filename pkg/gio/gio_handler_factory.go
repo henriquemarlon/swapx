@@ -1,4 +1,4 @@
-package service
+package gio
 
 import "errors"
 
@@ -7,10 +7,10 @@ type GioHandlerFactory interface {
 }
 
 type DefaultGioHandlerFactory struct {
-	BaseUrl string `json:"base_url"`
+	BaseUrl string
 }
 
-func NewGioHandlerFactory(baseUrl string) *DefaultGioHandlerFactory {
+func NewGioHandlerFactory(baseUrl string) GioHandlerFactory {
 	return &DefaultGioHandlerFactory{
 		BaseUrl: baseUrl,
 	}
@@ -19,11 +19,8 @@ func NewGioHandlerFactory(baseUrl string) *DefaultGioHandlerFactory {
 func (f *DefaultGioHandlerFactory) NewGioHandler(domain uint16) (GioHandler, error) {
 	switch domain {
 	case 0x27:
-		return &GioGetStorage{
-			Domain:  domain,
-			BaseUrl: f.BaseUrl,
-		}, nil
-	// more cases according with co-processor domains
+		return NewGioGetStorage(f.BaseUrl, domain), nil
+	// Adicione novos cases aqui conforme necessário
 	default:
 		return nil, errors.New("domain not supported")
 	}

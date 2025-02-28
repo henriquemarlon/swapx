@@ -7,7 +7,7 @@ import (
 
 type FindOrderOutputDTO struct {
 	Id        uint64         `json:"id"`
-	Account   common.Address `json:"account"`
+	Hook      common.Address `json:"hook"`
 	SqrtPrice *uint256.Int   `json:"sqrt_price"`
 	Amount    *uint256.Int   `json:"amount"`
 	Type      string         `json:"type"`

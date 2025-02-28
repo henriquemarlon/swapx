@@ -25,10 +25,10 @@ func (s *FindAllOrdersUsecase) Execute() (FindAllOrdersOutputDTO, error) {
 	for _, order := range res {
 		dto := &FindOrderOutputDTO{
 			Id:        order.Id,
-			Account:   order.Account,
+			Hook:      order.Hook,
 			SqrtPrice: order.SqrtPrice,
 			Amount:    order.Amount,
-			Type:      string(order.Type),
+			Type:      string(*order.Type),
 		}
 		output = append(output, dto)
 	}

@@ -26,9 +26,9 @@ func (s *FindOrderByTypeAndIdUsecase) Execute(input *FindOrderByTypeAndIdInputDT
 	}
 	return &FindOrderOutputDTO{
 		Id:        res.Id,
-		Account:   res.Account,
+		Hook:      res.Hook,
 		SqrtPrice: res.SqrtPrice,
 		Amount:    res.Amount,
-		Type:      string(res.Type),
+		Type:      string(*res.Type),
 	}, nil
 }

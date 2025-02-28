@@ -17,3 +17,6 @@
 	path = third_party/cartesi-coprocessor
 	url = https://github.com/henriquemarlon/cartesi-coprocessor
 	branch = release
+[submodule "third_party/cartesi-coprocessor-operator"]
+	path = third_party/cartesi-coprocessor-operator
+	url = https://github.com/zippiehq/cartesi-coprocessor-operator

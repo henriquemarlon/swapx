@@ -11,6 +11,7 @@ import (
 	"github.com/henriquemarlon/swapx/configs"
 	"github.com/henriquemarlon/swapx/internal/domain"
 	"github.com/henriquemarlon/swapx/internal/infra/cartesi"
+	"github.com/henriquemarlon/swapx/internal/infra/service"
 	"github.com/henriquemarlon/swapx/internal/infra/repository"
 )
 
@@ -18,7 +19,8 @@ import (
 
 func NewOrderHandler(db *configs.InMemoryDB) (*cartesi.OrderBookHandler, error) {
 	orderRepositoryInMemory := repository.NewOrderRepositoryInMemory(db)
-	orderBookHandler := cartesi.NewOrderHandler(orderRepositoryInMemory)
+	hookStorageService := service.NewHookStorageService()
+	orderBookHandler := cartesi.NewOrderHandler(orderRepositoryInMemory, hookStorageService)
 	return orderBookHandler, nil
 }
 

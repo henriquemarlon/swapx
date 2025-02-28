@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"math/big"
@@ -18,7 +19,8 @@ const (
 )
 
 type MatchOrderUseCase struct {
-	OrderRepository domain.OrderRepository
+	OrderRepository     domain.OrderRepository
+	HookContractService service.HookStorageServiceInterface
 }
 
 type MatchOrderInputDTO struct {
@@ -30,17 +32,46 @@ type MatchOrderOutputDTO struct {
 	SellOrderId *big.Int `json:"sell_order_id"`
 }
 
-func NewMatchOrderUseCase(orderRepository domain.OrderRepository) *MatchOrderUseCase {
+func NewMatchOrderUseCase(orderRepository domain.OrderRepository, hookContractService service.HookStorageServiceInterface) *MatchOrderUseCase {
 	return &MatchOrderUseCase{
-		OrderRepository: orderRepository,
+		OrderRepository:     orderRepository,
+		HookContractService: hookContractService,
 	}
 }
 
 func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coprocessor.Metadata) (*MatchOrderOutputDTO, error) {
-	amount, address, price, quantity, orderTypeBinary, err := validateAndExtractArgs(input.UnpackedArgs)
-	if err != nil {
-		return nil, err
+
+	// -----------------------------------------------------------------------------
+	// Validate input
+	// -----------------------------------------------------------------------------
+
+	if len(input.UnpackedArgs) < 4 {
+		return nil, errors.New("invalid input: UnpackedArgs must have at least 4 elements")
 	}
+
+	index, ok := input.UnpackedArgs[0].(*big.Int)
+	if !ok {
+		return nil, errors.New("invalid type for UnpackedArgs[0]: expected *big.Int")
+	}
+
+	price, ok := input.UnpackedArgs[1].(*big.Int)
+	if !ok {
+		return nil, errors.New("invalid type for UnpackedArgs[1]: expected *big.Int")
+	}
+
+	quantity, ok := input.UnpackedArgs[2].(*big.Int)
+	if !ok {
+		return nil, errors.New("invalid type for UnpackedArgs[2]: expected *big.Int")
+	}
+
+	orderTypeBinary, ok := input.UnpackedArgs[3].(*big.Int)
+	if !ok {
+		return nil, errors.New("invalid type for UnpackedArgs[3]: expected *big.Int")
+	}
+
+	// -----------------------------------------------------------------------------
+	// Create incoming order
+	// -----------------------------------------------------------------------------
 
 	var orderType domain.OrderType
 	if orderTypeBinary.Cmp(big.NewInt(0)) == 0 {
@@ -50,11 +81,11 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 	}
 
 	order, err := domain.NewOrder(
-		amount.Uint64(),
-		address,
+		index.Uint64(),
+		metadata.MsgSender,
 		uint256.MustFromBig(price),
 		uint256.MustFromBig(quantity),
-		orderType,
+		&orderType,
 	)
 	if err != nil {
 		return nil, err
@@ -64,85 +95,68 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 		return nil, err
 	}
 
-	factory := service.NewGioHandlerFactory("http://localhost:8080")
-	handler, err := factory.NewGioHandler(0x27)
+	// -----------------------------------------------------------------------------
+	// Find all previous orders
+	// -----------------------------------------------------------------------------
+
+	buyOrders, err := h.HookContractService.FindAllOrdersBySlot(
+		metadata.MsgSender,
+		common.HexToHash(metadata.BlockHash),
+		common.BigToHash(big.NewInt(BUY_ORDERS_STORAGE_SLOT)),
+	)
 	if err != nil {
+		if err != service.ErrNoOrdersFound {
+			return nil, errors.New("cannot match order: no buy orders found")
+		}
+		buyOrders = nil
+	}
+
+	for _, buyOrder := range buyOrders {
+		buyOrder.Type = &domain.OrderTypeBuy
+		if _, err := h.OrderRepository.CreateOrder(buyOrder); err != nil {
+			return nil, err
+		}
+	}
+
+	sellOrders, err := h.HookContractService.FindAllOrdersBySlot(
+		metadata.MsgSender,
+		common.HexToHash(metadata.BlockHash),
+		common.BigToHash(big.NewInt(SELL_ORDERS_STORAGE_SLOT)),
+	)
+	if err != nil {
+		if err != service.ErrNoOrdersFound {
+			return nil, errors.New("cannot match order: no sell orders found")
+		}
+		sellOrders = nil
+	}
+
+	for _, sellOrder := range sellOrders {
+		sellOrder.Type = &domain.OrderTypeSell
+		if _, err := h.OrderRepository.CreateOrder(sellOrder); err != nil {
+			return nil, err
+		}
+	}
+
+	// -----------------------------------------------------------------------------
+	// OrderBook
+	// -----------------------------------------------------------------------------
+
+	res, err := h.OrderRepository.FindAllOrders()
+	if err != nil {
+		log.Printf("Error fetching all orders: %v", err)
 		return nil, err
 	}
 
-	log.Print("Pass 1")
-
-	// orders := []domain.Order{}
-
-	for _, storageSlot := range []int{BUY_ORDERS_STORAGE_SLOT, SELL_ORDERS_STORAGE_SLOT} {
-		log.Print("Pass 2")
-
-		res, err := handler.HandleStorageAt(
-			common.HexToHash(metadata.BlockHash),
-			metadata.MsgSender,
-			common.BytesToHash(big.NewInt(int64(storageSlot)).Bytes()),
-		)
-
-		log.Printf("Response: %v", res)
-		if err != nil {
-			log.Printf("failed to get storage at slot %d: %v", storageSlot, err)
-			return nil, err
-		}
-
-		// arrayLengthInt := new(big.Int).SetBytes([]byte(res.Response))
-		// for i := int64(0); i < arrayLengthInt.Int64(); i++ {
-		// 	elementSlot := new(big.Int).Add(new(big.Int).SetBytes(big.NewInt(int64(storageSlot)).Bytes()), big.NewInt(i))
-
-		// 	data, err := handler.HandleStorageAt(
-		// 		common.HexToHash(metadata.BlockHash),
-		// 		metadata.MsgSender,
-		// 		common.BytesToHash(elementSlot.Bytes()),
-		// 	)
-		// 	if err != nil {
-		// 		return nil, fmt.Errorf("failed to get order at index %d: %w", i, err)
-		// 	}
-
-		// 	log.Printf("Order data: %+v", data)
-
-		//  orders = append(orders, order)
-		// }
+	jsonBytes, err := json.Marshal(res)
+	if err != nil {
+		log.Printf("Error marshalling orders: %v", err)
+		return nil, err
 	}
+
+	log.Printf("All orders: %v", string(jsonBytes))
 
 	return &MatchOrderOutputDTO{
 		BuyOrderId:  big.NewInt(12),
 		SellOrderId: big.NewInt(12),
 	}, nil
-}
-
-func validateAndExtractArgs(args []interface{}) (*big.Int, common.Address, *big.Int, *big.Int, *big.Int, error) {
-	if len(args) < 5 {
-		return nil, common.Address{}, nil, nil, nil, errors.New("invalid input: UnpackedArgs must have at least 5 elements")
-	}
-
-	amount, ok := args[0].(*big.Int)
-	if !ok {
-		return nil, common.Address{}, nil, nil, nil, errors.New("invalid type for UnpackedArgs[0]: expected *big.Int")
-	}
-
-	address, ok := args[1].(common.Address)
-	if !ok {
-		return nil, common.Address{}, nil, nil, nil, errors.New("invalid type for UnpackedArgs[1]: expected common.Address")
-	}
-
-	price, ok := args[2].(*big.Int)
-	if !ok {
-		return nil, common.Address{}, nil, nil, nil, errors.New("invalid type for UnpackedArgs[2]: expected *big.Int")
-	}
-
-	quantity, ok := args[3].(*big.Int)
-	if !ok {
-		return nil, common.Address{}, nil, nil, nil, errors.New("invalid type for UnpackedArgs[3]: expected *big.Int")
-	}
-
-	orderTypeBinary, ok := args[4].(*big.Int)
-	if !ok {
-		return nil, common.Address{}, nil, nil, nil, errors.New("invalid type for UnpackedArgs[4]: expected *big.Int")
-	}
-
-	return amount, address, price, quantity, orderTypeBinary, nil
 }

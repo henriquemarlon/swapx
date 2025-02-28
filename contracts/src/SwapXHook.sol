@@ -145,7 +145,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
                 );
                 buyOrders.push(order);
                 swapXTaskManager.createTask(
-                    abi.encode(buyOrders.length, order, uint256(0))
+                    abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(0))
                 );
             } else {
                 emit SellOrderCreated(
@@ -156,7 +156,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
                 );
                 sellOrders.push(order);
                 swapXTaskManager.createTask(
-                    abi.encode(sellOrders.length, order, uint256(1))
+                    abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(1))
                 );
             }
 

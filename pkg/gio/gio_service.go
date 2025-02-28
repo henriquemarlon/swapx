@@ -1,4 +1,4 @@
-package service
+package gio
 
 import "github.com/ethereum/go-ethereum/common"
 
@@ -13,5 +13,5 @@ type GioResponse struct {
 }
 
 type GioHandler interface {
-	HandleStorageAt(slot common.Hash, address common.Address, blockHash common.Hash) (*GioResponse, error)
+	Handle(blockHash common.Hash, address common.Address, slot common.Hash) (*GioResponse, error)
 }

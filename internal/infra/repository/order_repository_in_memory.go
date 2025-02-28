@@ -46,7 +46,7 @@ func (r *OrderRepositoryInMemory) FindOrderByTypeAndId(orderType string, id uint
 	defer r.mutex.RUnlock()
 
 	order, exists := r.db[id]
-	if !exists || string(order.Type) != orderType {
+	if !exists || string(*order.Type) != orderType {
 		return nil, domain.ErrOderNotFound
 	}
 	log.Println("Found", "order", order)
@@ -59,7 +59,7 @@ func (r *OrderRepositoryInMemory) FindOrdersByType(orderType string) ([]*domain.
 
 	var filteredOrders []*domain.Order
 	for _, order := range r.db {
-		if string(order.Type) == orderType {
+		if string(*order.Type) == orderType {
 			filteredOrders = append(filteredOrders, order)
 			log.Println("Found", "order", order)
 		}

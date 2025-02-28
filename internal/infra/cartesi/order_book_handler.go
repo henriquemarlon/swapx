@@ -8,17 +8,20 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/henriquemarlon/swapx/internal/domain"
+	"github.com/henriquemarlon/swapx/internal/infra/service"
 	"github.com/henriquemarlon/swapx/internal/usecase"
 	"github.com/henriquemarlon/swapx/pkg/coprocessor"
 )
 
 type OrderBookHandler struct {
 	OrderRepository domain.OrderRepository
+	HookStorageServiceInterface service.HookStorageServiceInterface
 }
 
-func NewOrderHandler(orderRepository domain.OrderRepository) *OrderBookHandler {
+func NewOrderHandler(orderRepository domain.OrderRepository, hookStorageServiceInterface service.HookStorageServiceInterface) *OrderBookHandler {
 	return &OrderBookHandler{
 		OrderRepository: orderRepository,
+		HookStorageServiceInterface: hookStorageServiceInterface,
 	}
 }
 
@@ -27,7 +30,6 @@ func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse)
 	uint256Type, _ := abi.NewType("uint256", "", nil)
 	inputArgs := abi.Arguments{
 		{Type: uint256Type},
-		{Type: addressType},
 		{Type: uint256Type},
 		{Type: uint256Type},
 		{Type: uint256Type},
@@ -43,7 +45,10 @@ func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse)
 		return err
 	}
 
-	matchOrder := usecase.NewMatchOrderUseCase(oh.OrderRepository)
+	matchOrder := usecase.NewMatchOrderUseCase(
+		oh.OrderRepository,
+		oh.HookStorageServiceInterface,
+	)
 	res, err := matchOrder.Execute(&usecase.MatchOrderInputDTO{
 		UnpackedArgs: values,
 	}, input.Metadata)

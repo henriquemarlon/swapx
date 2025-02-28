@@ -13,6 +13,9 @@ env:
 .PHONY: infra
 infra:
 	$(START_LOG)
+	@docker build \
+		-f ./third_party/cartesi-coprocessor-operator/Dockerfile \
+		-t operator:latest ./third_party/cartesi-coprocessor-operator
 	@cd third_party/cartesi-coprocessor; docker compose -f docker-compose-devnet.yaml up --build
 
 .PHONY: clean
