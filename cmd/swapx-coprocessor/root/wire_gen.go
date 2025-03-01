@@ -21,14 +21,14 @@ import (
 func NewOrderBookHandler(db *configs.InMemoryDB, rollupServerUrl string) (*cartesi.OrderBookHandler, error) {
 	orderRepositoryInMemory := repository.NewOrderRepositoryInMemory(db)
 	gioHandlerFactory := gio.NewGioHandlerFactory(rollupServerUrl)
-	hookStorageService := service.NewHookStorageService(gioHandlerFactory)
-	orderBookHandler := cartesi.NewOrderHandler(orderRepositoryInMemory, hookStorageService)
+	orderStorageService := service.NewOrderStorageService(gioHandlerFactory)
+	orderBookHandler := cartesi.NewOrderHandler(orderRepositoryInMemory, orderStorageService)
 	return orderBookHandler, nil
 }
 
 // wire.go:
 
-var setHookStorageService = wire.NewSet(service.NewHookStorageService, wire.Bind(new(service.HookStorageServiceInterface), new(*service.HookStorageService)))
+var setHookStorageService = wire.NewSet(service.NewOrderStorageService, wire.Bind(new(service.OrderStorageServiceInterface), new(*service.OrderStorageService)))
 
 var setGioHandlerFactory = wire.NewSet(gio.NewGioHandlerFactory)
 

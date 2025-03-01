@@ -20,7 +20,7 @@ const (
 
 type MatchOrderUseCase struct {
 	OrderRepository     domain.OrderRepository
-	HookContractService service.HookStorageServiceInterface
+	HookContractService service.OrderStorageServiceInterface
 }
 
 type MatchOrderInputDTO struct {
@@ -32,7 +32,7 @@ type MatchOrderOutputDTO struct {
 	SellOrderId *big.Int `json:"sell_order_id"`
 }
 
-func NewMatchOrderUseCase(orderRepository domain.OrderRepository, hookContractService service.HookStorageServiceInterface) *MatchOrderUseCase {
+func NewMatchOrderUseCase(orderRepository domain.OrderRepository, hookContractService service.OrderStorageServiceInterface) *MatchOrderUseCase {
 	return &MatchOrderUseCase{
 		OrderRepository:     orderRepository,
 		HookContractService: hookContractService,

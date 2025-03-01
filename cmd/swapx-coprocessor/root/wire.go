@@ -14,8 +14,8 @@ import (
 )
 
 var setHookStorageService = wire.NewSet(
-	service.NewHookStorageService,
-	wire.Bind(new(service.HookStorageServiceInterface), new(*service.HookStorageService)),
+	service.NewOrderStorageService,
+	wire.Bind(new(service.OrderStorageServiceInterface), new(*service.OrderStorageService)),
 )
 
 var setGioHandlerFactory = wire.NewSet(

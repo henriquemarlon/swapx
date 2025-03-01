@@ -68,6 +68,19 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         uint256 amount
     );
 
+    event BuyOrderPartiallyFulfilled(
+        uint256 indexed buyOrderId,
+        address indexed account,
+        uint256 sqrtPrice,
+        uint256 amount
+    );
+    event SellOrderPartiallyFulfilled(
+        uint256 indexed sellOrderId,
+        address indexed account,
+        uint256 sqrtPrice,
+        uint256 amount
+    );
+
     event BuyOrderCancelled(
         uint256 indexed buyOrderId,
         address indexed account,
@@ -145,7 +158,12 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
                 );
                 buyOrders.push(order);
                 swapXTaskManager.createTask(
-                    abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(0))
+                    abi.encode(
+                        buyOrders.length,
+                        order.sqrtPrice,
+                        order.amount,
+                        uint256(0)
+                    )
                 );
             } else {
                 emit SellOrderCreated(
@@ -156,7 +174,12 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
                 );
                 sellOrders.push(order);
                 swapXTaskManager.createTask(
-                    abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(1))
+                    abi.encode(
+                        buyOrders.length,
+                        order.sqrtPrice,
+                        order.amount,
+                        uint256(1)
+                    )
                 );
             }
 
@@ -215,31 +238,53 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
             revert OrderAlreadyFulfilledOrCancelled();
         }
 
-        Order memory buyOrder = buyOrders[buyOrderId];
-        Order memory sellOrder = sellOrders[sellOrderId];
+        Order storage buyOrder = buyOrders[buyOrderId];
+        Order storage sellOrder = sellOrders[sellOrderId];
 
         if (buyOrder.sqrtPrice < sellOrder.sqrtPrice) {
             revert OrderSqrtPricesDoNotMatch();
         }
 
-        buyOrderFulfilledOrCancelled[buyOrderId] = true;
-        sellOrderFulfilledOrCancelled[sellOrderId] = true;
+        uint256 tradeAmount = buyOrder.amount < sellOrder.amount
+            ? buyOrder.amount
+            : sellOrder.amount;
 
-        currency1.transfer(buyOrder.account, buyOrder.amount);
-        currency0.transfer(sellOrder.account, sellOrder.amount);
+        currency1.transfer(buyOrder.account, tradeAmount);
+        currency0.transfer(sellOrder.account, tradeAmount);
 
-        emit BuyOrderFulfilled(
-            buyOrderId,
-            buyOrder.account,
-            buyOrder.sqrtPrice,
-            buyOrder.amount
-        );
-        emit SellOrderFulfilled(
-            sellOrderId,
-            sellOrder.account,
-            sellOrder.sqrtPrice,
-            sellOrder.amount
-        );
+        buyOrder.amount -= tradeAmount;
+        sellOrder.amount -= tradeAmount;
+
+        if (buyOrder.amount == 0) {
+            buyOrderFulfilledOrCancelled[buyOrderId] = true;
+            emit BuyOrderFulfilled(
+                buyOrderId,
+                buyOrder.account,
+                buyOrder.sqrtPrice,
+                tradeAmount
+            );
+            emit SellOrderPartiallyFulfilled(
+                sellOrderId,
+                sellOrder.account,
+                sellOrder.sqrtPrice,
+                tradeAmount
+            );
+        }
+        if (sellOrder.amount == 0) {
+            sellOrderFulfilledOrCancelled[sellOrderId] = true;
+            emit BuyOrderPartiallyFulfilled(
+                buyOrderId,
+                buyOrder.account,
+                buyOrder.sqrtPrice,
+                tradeAmount
+            );
+            emit SellOrderFulfilled(
+                sellOrderId,
+                sellOrder.account,
+                sellOrder.sqrtPrice,
+                tradeAmount
+            );
+        }
     }
 
     function cancelBuyOrder(uint256 orderId) public {

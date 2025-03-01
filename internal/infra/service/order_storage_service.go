@@ -15,21 +15,21 @@ var (
 	ErrNoOrdersFound = errors.New("no orders found")
 )
 
-type HookStorageService struct {
+type OrderStorageService struct {
 	GioHandlerFactory gio.GioHandlerFactory
 }
 
-type HookStorageServiceInterface interface {
+type OrderStorageServiceInterface interface {
 	FindOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error)
 }
 
-func NewHookStorageService(gioHandlerFactory gio.GioHandlerFactory) *HookStorageService {
-	return &HookStorageService{
+func NewOrderStorageService(gioHandlerFactory gio.GioHandlerFactory) *OrderStorageService {
+	return &OrderStorageService{
 		GioHandlerFactory: gioHandlerFactory,
 	}
 }
 
-func (s *HookStorageService) FindOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error) {
+func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error) {
 	handler, err := s.GioHandlerFactory.NewGioHandler(0x27)
 	if err != nil {
 		return nil, err
