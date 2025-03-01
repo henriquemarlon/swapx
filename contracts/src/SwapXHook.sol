@@ -252,10 +252,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         currency1.transfer(buyOrder.account, tradeAmount);
         currency0.transfer(sellOrder.account, tradeAmount);
 
-        buyOrder.amount -= tradeAmount;
-        sellOrder.amount -= tradeAmount;
-
-        if (buyOrder.amount == 0) {
+        if (tradeAmount == buyOrder.amount) {
             buyOrderFulfilledOrCancelled[buyOrderId] = true;
             emit BuyOrderFulfilled(
                 buyOrderId,
@@ -263,22 +260,27 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
                 buyOrder.sqrtPrice,
                 tradeAmount
             );
-            emit SellOrderPartiallyFulfilled(
-                sellOrderId,
-                sellOrder.account,
-                sellOrder.sqrtPrice,
-                tradeAmount
-            );
-        }
-        if (sellOrder.amount == 0) {
-            sellOrderFulfilledOrCancelled[sellOrderId] = true;
+        } else {
+            buyOrder.amount -= tradeAmount;
             emit BuyOrderPartiallyFulfilled(
                 buyOrderId,
                 buyOrder.account,
                 buyOrder.sqrtPrice,
                 tradeAmount
             );
+        }
+
+        if (tradeAmount == sellOrder.amount) {
+            sellOrderFulfilledOrCancelled[sellOrderId] = true;
             emit SellOrderFulfilled(
+                sellOrderId,
+                sellOrder.account,
+                sellOrder.sqrtPrice,
+                tradeAmount
+            );
+        } else {
+            sellOrder.amount -= tradeAmount;
+            emit SellOrderPartiallyFulfilled(
                 sellOrderId,
                 sellOrder.account,
                 sellOrder.sqrtPrice,
