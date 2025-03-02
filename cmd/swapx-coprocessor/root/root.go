@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"strconv"
 	"time"
@@ -22,20 +23,16 @@ var (
 	Cmd     = &cobra.Command{
 		Use:   CMD_NAME,
 		Short: "Run SwapX Coprocessor",
-		Long:  `EVM Linux Coprocessor as an orderbook for UniswapV4 Hooks`,
+		Long:  `EVM Linux Coprocessor as an order book powered by EigenLayer and UniswapV4 Hooks`,
 		Run:   run,
 	}
+	ROLLUP_HTTP_SERVER_URL = os.Getenv("ROLLUP_HTTP_SERVER_URL")
 )
 
 func init() {
 	Cmd.Flags().BoolVar(&verbose, "verbose", false, "Show detailed logs")
 	Cmd.PreRun = func(cmd *cobra.Command, args []string) {
-		if verbose {
-			log.SetOutput(os.Stdout)
-			log.SetFlags(log.Lshortfile | log.LstdFlags)
-		} else {
-			log.SetOutput(io.Discard)
-		}
+		configs.ConfigureLogger(slog.LevelInfo)
 	}
 }
 
@@ -46,7 +43,7 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	log.Println("In-memory database initialized")
 
-	oh, err := NewOrderHandler(db)
+	oh, err := NewMatchOrdersHandler(db, ROLLUP_HTTP_SERVER_URL)
 	if err != nil {
 		log.Fatalf("Failed to initialize OrderHandler: %v", err)
 	}
@@ -93,7 +90,7 @@ func run(cmd *cobra.Command, args []string) {
 			continue
 		}
 
-		if err := oh.OrderBookHandler(&advanceResponse); err != nil {
+		if err := oh.MatchOrdersHandler(&advanceResponse); err != nil {
 			log.Println("Error handling order", err)
 			finish.Status = "reject"
 		}

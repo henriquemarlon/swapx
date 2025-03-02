@@ -8,14 +8,13 @@ import (
 )
 
 var (
-	ErrNoMatch      = errors.New("no match found")
 	ErrInvalidOrder = errors.New("invalid order")
 	ErrOderNotFound = errors.New("order not found")
 )
 
 type OrderType string
 
-const (
+var (
 	OrderTypeBuy  OrderType = "buy"
 	OrderTypeSell OrderType = "sell"
 )
@@ -29,16 +28,16 @@ type OrderRepository interface {
 
 type Order struct {
 	Id        uint64         `json:"id"`
-	Account   common.Address `json:"account"`
+	Hook      common.Address `json:"hook"`
 	SqrtPrice *uint256.Int   `json:"sqrt_price"`
 	Amount    *uint256.Int   `json:"amount"`
-	Type      OrderType      `json:"type"`
+	Type      *OrderType     `json:"type"`
 }
 
-func NewOrder(id uint64, account common.Address, sqrtPrice, amount *uint256.Int, orderType OrderType) (*Order, error) {
+func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, orderType *OrderType) (*Order, error) {
 	order := &Order{
 		Id:        id,
-		Account:   account,
+		Hook:      hook,
 		SqrtPrice: sqrtPrice,
 		Amount:    amount,
 		Type:      orderType,
@@ -50,7 +49,7 @@ func NewOrder(id uint64, account common.Address, sqrtPrice, amount *uint256.Int,
 }
 
 func (o *Order) Validate() error {
-	if o.Id == 0 || o.Account == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 {
+	if o.Id == 0 || o.Hook == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 {
 		return ErrInvalidOrder
 	}
 	return nil

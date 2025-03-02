@@ -6,6 +6,7 @@ require (
 	github.com/ethereum/go-ethereum v1.13.8
 	github.com/google/wire v0.6.0
 	github.com/holiman/uint256 v1.2.4
+	github.com/lmittmann/tint v1.0.7
 	github.com/spf13/cobra v1.9.0
 )
 

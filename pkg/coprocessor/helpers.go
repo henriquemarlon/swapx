@@ -2,21 +2,19 @@ package coprocessor
 
 import (
 	"bytes"
-	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"os"
 )
 
-var rollup_server = os.Getenv("ROLLUP_HTTP_SERVER_URL")
+var ROLLUP_HTTP_SERVER_URL = os.Getenv("ROLLUP_HTTP_SERVER_URL")
 
 func SendPost(endpoint string, jsonData []byte) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodPost, rollup_server+"/"+endpoint, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(http.MethodPost, ROLLUP_HTTP_SERVER_URL+"/"+endpoint, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return &http.Response{}, err
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-
 	return http.DefaultClient.Do(req)
 }
 
@@ -45,17 +43,4 @@ func SendException(exception *ExceptionRequest) (*http.Response, error) {
 	}
 
 	return SendPost("exception", body)
-}
-
-func Hex2Str(hx string) (string, error) {
-	str, err := hex.DecodeString(hx[2:])
-	if err != nil {
-		return string(str), err
-	}
-	return string(str), nil
-}
-
-func Str2Hex(str string) string {
-	hx := hex.EncodeToString([]byte(str))
-	return "0x" + string(hx)
 }
