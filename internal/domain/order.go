@@ -8,7 +8,6 @@ import (
 )
 
 var (
-	ErrNoMatch      = errors.New("no match found")
 	ErrInvalidOrder = errors.New("invalid order")
 	ErrOderNotFound = errors.New("order not found")
 )

@@ -23,7 +23,7 @@ var (
 	Cmd     = &cobra.Command{
 		Use:   CMD_NAME,
 		Short: "Run SwapX Coprocessor",
-		Long:  `EVM Linux Coprocessor as an orderbook for UniswapV4 Hooks`,
+		Long:  `EVM Linux Coprocessor as an order book powered by EigenLayer and UniswapV4 Hooks`,
 		Run:   run,
 	}
 	ROLLUP_HTTP_SERVER_URL = os.Getenv("ROLLUP_HTTP_SERVER_URL")
@@ -43,7 +43,7 @@ func run(cmd *cobra.Command, args []string) {
 	}
 	log.Println("In-memory database initialized")
 
-	oh, err := NewOrderBookHandler(db, ROLLUP_HTTP_SERVER_URL)
+	oh, err := NewMatchOrdersHandler(db, ROLLUP_HTTP_SERVER_URL)
 	if err != nil {
 		log.Fatalf("Failed to initialize OrderHandler: %v", err)
 	}
@@ -90,7 +90,7 @@ func run(cmd *cobra.Command, args []string) {
 			continue
 		}
 
-		if err := oh.OrderBookHandler(&advanceResponse); err != nil {
+		if err := oh.MatchOrdersHandler(&advanceResponse); err != nil {
 			log.Println("Error handling order", err)
 			finish.Status = "reject"
 		}

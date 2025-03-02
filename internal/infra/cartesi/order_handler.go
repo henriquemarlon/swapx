@@ -13,19 +13,19 @@ import (
 	"github.com/henriquemarlon/swapx/pkg/coprocessor"
 )
 
-type OrderBookHandler struct {
+type MatchOrdersHandler struct {
 	OrderRepository             domain.OrderRepository
 	HookStorageServiceInterface service.OrderStorageServiceInterface
 }
 
-func NewOrderHandler(orderRepository domain.OrderRepository, hookStorageServiceInterface service.OrderStorageServiceInterface) *OrderBookHandler {
-	return &OrderBookHandler{
+func NewMatchOrdersHandler(orderRepository domain.OrderRepository, hookStorageServiceInterface service.OrderStorageServiceInterface) *MatchOrdersHandler {
+	return &MatchOrdersHandler{
 		OrderRepository:             orderRepository,
 		HookStorageServiceInterface: hookStorageServiceInterface,
 	}
 }
 
-func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse) error {
+func (oh *MatchOrdersHandler) MatchOrdersHandler(input *coprocessor.AdvanceResponse) error {
 	addressType, _ := abi.NewType("address", "", nil)
 	uint256Type, _ := abi.NewType("uint256", "", nil)
 	inputArgs := abi.Arguments{
@@ -45,11 +45,11 @@ func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse)
 		return err
 	}
 
-	matchOrder := usecase.NewMatchOrderUseCase(
+	matchOrder := usecase.NewMatchOrdersUseCase(
 		oh.OrderRepository,
 		oh.HookStorageServiceInterface,
 	)
-	res, err := matchOrder.Execute(&usecase.MatchOrderInputDTO{
+	res, err := matchOrder.Execute(&usecase.MatchOrdersInputDTO{
 		UnpackedArgs: values,
 	}, input.Metadata)
 	if err != nil {
@@ -66,13 +66,25 @@ func (oh *OrderBookHandler) OrderBookHandler(input *coprocessor.AdvanceResponse)
 		{Type: uint256Type},
 	}
 
-	encodedData, err := outputArgs.Pack(input.Metadata.MsgSender, res.BuyOrderId, res.SellOrderId)
-	if err != nil {
-		return err
+	sender := input.Metadata.MsgSender
+	for orderId, counterOrders := range res.BuyToSell {
+		for _, counterId := range counterOrders {
+			encodedData, err := outputArgs.Pack(sender, orderId, counterId)
+			if err != nil {
+				return err
+			}
+			coprocessor.SendNotice(&coprocessor.NoticeRequest{Payload: "0x" + common.Bytes2Hex(encodedData)})
+		}
 	}
 
-	coprocessor.SendNotice(&coprocessor.NoticeRequest{
-		Payload: "0x" + common.Bytes2Hex(encodedData),
-	})
+	for orderId, counterOrders := range res.SellToBuy {
+		for _, counterId := range counterOrders {
+			encodedData, err := outputArgs.Pack(sender, counterId, orderId)
+			if err != nil {
+				return err
+			}
+			coprocessor.SendNotice(&coprocessor.NoticeRequest{Payload: "0x" + common.Bytes2Hex(encodedData)})
+		}
+	}
 	return nil
 }

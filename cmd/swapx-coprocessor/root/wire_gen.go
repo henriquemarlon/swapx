@@ -18,12 +18,12 @@ import (
 
 // Injectors from wire.go:
 
-func NewOrderBookHandler(db *configs.InMemoryDB, rollupServerUrl string) (*cartesi.OrderBookHandler, error) {
+func NewMatchOrdersHandler(db *configs.InMemoryDB, rollupServerUrl string) (*cartesi.MatchOrdersHandler, error) {
 	orderRepositoryInMemory := repository.NewOrderRepositoryInMemory(db)
 	gioHandlerFactory := gio.NewGioHandlerFactory(rollupServerUrl)
 	orderStorageService := service.NewOrderStorageService(gioHandlerFactory)
-	orderBookHandler := cartesi.NewOrderHandler(orderRepositoryInMemory, orderStorageService)
-	return orderBookHandler, nil
+	matchOrdersHandler := cartesi.NewMatchOrdersHandler(orderRepositoryInMemory, orderStorageService)
+	return matchOrdersHandler, nil
 }
 
 // wire.go:
@@ -34,4 +34,4 @@ var setGioHandlerFactory = wire.NewSet(gio.NewGioHandlerFactory)
 
 var setOrderRepositoryDependency = wire.NewSet(repository.NewOrderRepositoryInMemory, wire.Bind(new(domain.OrderRepository), new(*repository.OrderRepositoryInMemory)))
 
-var setOrderHandler = wire.NewSet(cartesi.NewOrderHandler)
+var setMatchOrdersHandler = wire.NewSet(cartesi.NewMatchOrdersHandler)

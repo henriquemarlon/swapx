@@ -15,7 +15,6 @@ func SendPost(endpoint string, jsonData []byte) (*http.Response, error) {
 		return &http.Response{}, err
 	}
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-
 	return http.DefaultClient.Do(req)
 }
 

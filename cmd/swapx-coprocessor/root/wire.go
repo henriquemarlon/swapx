@@ -27,16 +27,16 @@ var setOrderRepositoryDependency = wire.NewSet(
 	wire.Bind(new(domain.OrderRepository), new(*repository.OrderRepositoryInMemory)),
 )
 
-var setOrderHandler = wire.NewSet(
-	cartesi.NewOrderHandler,
+var setMatchOrdersHandler = wire.NewSet(
+	cartesi.NewMatchOrdersHandler,
 )
 
-func NewOrderBookHandler(db *configs.InMemoryDB, rollupServerUrl string) (*cartesi.OrderBookHandler, error) {
+func NewMatchOrdersHandler(db *configs.InMemoryDB, rollupServerUrl string) (*cartesi.MatchOrdersHandler, error) {
 	wire.Build(
 		setOrderRepositoryDependency,
 		setGioHandlerFactory,
 		setHookStorageService,
-		setOrderHandler,
+		setMatchOrdersHandler,
 	)
-	return &cartesi.OrderBookHandler{}, nil
+	return &cartesi.MatchOrdersHandler{}, nil
 }

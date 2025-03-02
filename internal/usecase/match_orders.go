@@ -18,28 +18,28 @@ const (
 	SELL_ORDERS_STORAGE_SLOT = 9
 )
 
-type MatchOrderUseCase struct {
+type MatchOrdersUseCase struct {
 	OrderRepository     domain.OrderRepository
 	HookContractService service.OrderStorageServiceInterface
 }
 
-type MatchOrderInputDTO struct {
+type MatchOrdersInputDTO struct {
 	UnpackedArgs []interface{} `json:"unpacked_args"`
 }
 
-type MatchOrderOutputDTO struct {
-	BuyOrderId  *big.Int `json:"buy_order_id"`
-	SellOrderId *big.Int `json:"sell_order_id"`
+type MatchOrdersOutputDTO struct {
+	BuyToSell map[string][]string
+	SellToBuy map[string][]string
 }
 
-func NewMatchOrderUseCase(orderRepository domain.OrderRepository, hookContractService service.OrderStorageServiceInterface) *MatchOrderUseCase {
-	return &MatchOrderUseCase{
+func NewMatchOrdersUseCase(orderRepository domain.OrderRepository, hookContractService service.OrderStorageServiceInterface) *MatchOrdersUseCase {
+	return &MatchOrdersUseCase{
 		OrderRepository:     orderRepository,
 		HookContractService: hookContractService,
 	}
 }
 
-func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coprocessor.Metadata) (*MatchOrderOutputDTO, error) {
+func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coprocessor.Metadata) (*MatchOrdersOutputDTO, error) {
 
 	// -----------------------------------------------------------------------------
 	// Validate input
@@ -138,16 +138,23 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 	}
 
 	// -----------------------------------------------------------------------------
-	// OrderBook
+	// Match orders
 	// -----------------------------------------------------------------------------
 
-	res, err := h.OrderRepository.FindAllOrders()
+	orderBook := domain.NewOrderBook()
+	orders, err := h.OrderRepository.FindAllOrders()
 	if err != nil {
 		log.Printf("Error fetching all orders: %v", err)
 		return nil, err
 	}
 
-	jsonBytes, err := json.Marshal(res)
+	for _, order := range orders {
+		orderBook.AddOrder(order)
+	}
+
+	orderBook.MatchOrders()
+
+	jsonBytes, err := json.Marshal(orders)
 	if err != nil {
 		log.Printf("Error marshalling orders: %v", err)
 		return nil, err
@@ -155,8 +162,12 @@ func (h *MatchOrderUseCase) Execute(input *MatchOrderInputDTO, metadata coproces
 
 	log.Printf("All orders: %v", string(jsonBytes))
 
-	return &MatchOrderOutputDTO{
-		BuyOrderId:  big.NewInt(12),
-		SellOrderId: big.NewInt(12),
+	return &MatchOrdersOutputDTO{
+		BuyToSell: map[string][]string{
+			"1": {"2", "3", "4"},
+		},
+		SellToBuy: map[string][]string{
+			"1": {"2", "3", "4"},
+		},
 	}, nil
 }
