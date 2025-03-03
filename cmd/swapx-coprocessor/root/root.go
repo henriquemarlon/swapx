@@ -23,7 +23,7 @@ var (
 	Cmd     = &cobra.Command{
 		Use:   CMD_NAME,
 		Short: "Run SwapX Coprocessor",
-		Long:  `EVM Linux Coprocessor as an order book powered by EigenLayer and UniswapV4 Hooks`,
+		Long:  `EVM Linux Coprocessor as an orderbook for UniswapV4 Hooks`,
 		Run:   run,
 	}
 	ROLLUP_HTTP_SERVER_URL = os.Getenv("ROLLUP_HTTP_SERVER_URL")

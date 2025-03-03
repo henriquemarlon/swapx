@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"encoding/json"
 	"errors"
 	"log"
 	"math/big"
@@ -142,32 +141,32 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 	// -----------------------------------------------------------------------------
 
 	orderBook := domain.NewOrderBook()
-	orders, err := h.OrderRepository.FindAllOrders()
+
+	bids, err := h.OrderRepository.FindOrdersByType(string(domain.OrderTypeBuy))
 	if err != nil {
 		log.Printf("Error fetching all orders: %v", err)
 		return nil, err
 	}
-
-	for _, order := range orders {
-		orderBook.AddOrder(order)
+	for _, bid := range bids {
+		orderBook.Bids.Push(bid)
 	}
 
-	orderBook.MatchOrders()
-
-	jsonBytes, err := json.Marshal(orders)
+	asks, err := h.OrderRepository.FindOrdersByType(string(domain.OrderTypeSell))
 	if err != nil {
-		log.Printf("Error marshalling orders: %v", err)
+		log.Printf("Error fetching all orders: %v", err)
+		return nil, err
+	}
+	for _, ask := range asks {
+		orderBook.Asks.Push(ask)
+	}
+
+	buyToSellOrders, askToBuyOrders, err := orderBook.MatchOrders()
+	if err != nil {
 		return nil, err
 	}
 
-	log.Printf("All orders: %v", string(jsonBytes))
-
 	return &MatchOrdersOutputDTO{
-		BuyToSell: map[string][]string{
-			"1": {"2", "3", "4"},
-		},
-		SellToBuy: map[string][]string{
-			"1": {"2", "3", "4"},
-		},
+		BuyToSell: buyToSellOrders,
+		SellToBuy: askToBuyOrders,
 	}, nil
 }
