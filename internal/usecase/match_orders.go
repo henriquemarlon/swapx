@@ -27,8 +27,7 @@ type MatchOrdersInputDTO struct {
 }
 
 type MatchOrdersOutputDTO struct {
-	BuyToSell map[string][]string
-	SellToBuy map[string][]string
+	Trades []*domain.Trade `json:"trades"`
 }
 
 func NewMatchOrdersUseCase(orderRepository domain.OrderRepository, hookContractService service.OrderStorageServiceInterface) *MatchOrdersUseCase {
@@ -160,13 +159,12 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		orderBook.Asks.Push(ask)
 	}
 
-	buyToSellOrders, askToBuyOrders, err := orderBook.MatchOrders()
+	trades, err := orderBook.MatchOrders()
 	if err != nil {
 		return nil, err
 	}
 
 	return &MatchOrdersOutputDTO{
-		BuyToSell: buyToSellOrders,
-		SellToBuy: askToBuyOrders,
+		Trades: trades,
 	}, nil
 }

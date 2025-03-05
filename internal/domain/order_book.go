@@ -3,14 +3,18 @@ package domain
 import (
 	"container/heap"
 	"errors"
-	"strconv"
 
 	"github.com/holiman/uint256"
 )
 
-var (
-	ErrNoMatch = errors.New("no match found")
-)
+var ErrNoMatch = errors.New("no match found")
+
+type Trade struct {
+	BidId  uint64
+	AskId  uint64
+	Price  *uint256.Int
+	Amount *uint256.Int
+}
 
 type OrderBook struct {
 	Bids *MaxHeap
@@ -34,14 +38,21 @@ type MaxHeap []*Order
 func (h MaxHeap) Len() int { return len(h) }
 
 func (h MaxHeap) Less(i, j int) bool {
-	if h[i].SqrtPrice.Cmp(h[j].SqrtPrice) == 0 {
-		return h[i].Amount.Cmp(h[j].Amount) > 0
+	priceCmp := h[i].SqrtPrice.Cmp(h[j].SqrtPrice)
+	if priceCmp != 0 {
+		return priceCmp > 0
 	}
-	return h[i].SqrtPrice.Cmp(h[j].SqrtPrice) > 0
+	return h[i].Id < h[j].Id
 }
 
-func (h MaxHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
-func (h *MaxHeap) Push(x interface{}) { *h = append(*h, x.(*Order)) }
+func (h MaxHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+func (h *MaxHeap) Push(x interface{}) {
+	*h = append(*h, x.(*Order))
+}
+
 func (h *MaxHeap) Pop() interface{} {
 	old := *h
 	n := len(old) - 1
@@ -55,14 +66,21 @@ type MinHeap []*Order
 func (h MinHeap) Len() int { return len(h) }
 
 func (h MinHeap) Less(i, j int) bool {
-	if h[i].SqrtPrice.Cmp(h[j].SqrtPrice) == 0 {
-		return h[i].Amount.Cmp(h[j].Amount) > 0
+	priceCmp := h[i].SqrtPrice.Cmp(h[j].SqrtPrice)
+	if priceCmp != 0 {
+		return priceCmp < 0
 	}
-	return h[i].SqrtPrice.Cmp(h[j].SqrtPrice) < 0
+	return h[i].Id < h[j].Id
 }
 
-func (h MinHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
-func (h *MinHeap) Push(x interface{}) { *h = append(*h, x.(*Order)) }
+func (h MinHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+func (h *MinHeap) Push(x interface{}) {
+	*h = append(*h, x.(*Order))
+}
+
 func (h *MinHeap) Pop() interface{} {
 	old := *h
 	n := len(old) - 1
@@ -71,107 +89,47 @@ func (h *MinHeap) Pop() interface{} {
 	return item
 }
 
-func (ob *OrderBook) MatchOrders() (map[string][]string, map[string][]string, error) {
-	buyToSell := make(map[string][]string)
-	sellToBuy := make(map[string][]string)
-
-	hasBuyMatch := false
-	hasSellMatch := false
+func (ob *OrderBook) MatchOrders() ([]*Trade, error) {
+	var trades []*Trade
 
 	for ob.Bids.Len() > 0 && ob.Asks.Len() > 0 {
-		highestBid := heap.Pop(ob.Bids).(*Order)
-		var matchedAsks []string
+		bestBid := (*ob.Bids)[0]
+		bestAsk := (*ob.Asks)[0]
 
-		for ob.Asks.Len() > 0 {
-			lowestAsk := heap.Pop(ob.Asks).(*Order)
-
-			if highestBid.SqrtPrice.Cmp(lowestAsk.SqrtPrice) < 0 {
-				heap.Push(ob.Bids, highestBid)
-				heap.Push(ob.Asks, lowestAsk)
-				break
-			}
-
-			matchedAsks = append(matchedAsks, strconv.FormatUint(lowestAsk.Id, 10))
-			hasBuyMatch = true
-
-			matchSize := new(uint256.Int)
-			if highestBid.Amount.Cmp(lowestAsk.Amount) < 0 {
-				matchSize.Set(highestBid.Amount)
-			} else {
-				matchSize.Set(lowestAsk.Amount)
-			}
-
-			highestBid.Amount.Sub(highestBid.Amount, matchSize)
-			lowestAsk.Amount.Sub(lowestAsk.Amount, matchSize)
-
-			if highestBid.Amount.Sign() == 0 {
-				break
-			}
-
-			if lowestAsk.Amount.Sign() > 0 {
-				heap.Push(ob.Asks, lowestAsk)
-			}
+		if bestBid.SqrtPrice.Cmp(bestAsk.SqrtPrice) < 0 {
+			break
 		}
 
-		if len(matchedAsks) > 0 {
-			buyToSell[strconv.FormatUint(highestBid.Id, 10)] = matchedAsks
+		matchedQty := new(uint256.Int)
+		if bestBid.Amount.Cmp(bestAsk.Amount) <= 0 {
+			matchedQty.Set(bestBid.Amount)
+		} else {
+			matchedQty.Set(bestAsk.Amount)
 		}
 
-		if highestBid.Amount.Sign() > 0 {
-			heap.Push(ob.Bids, highestBid)
+		tradePrice := bestAsk.SqrtPrice
+
+		trade := &Trade{
+			BidId:  bestBid.Id,
+			AskId:  bestAsk.Id,
+			Price:  tradePrice,
+			Amount: matchedQty,
+		}
+		trades = append(trades, trade)
+
+		bestBid.Amount = new(uint256.Int).Sub(bestBid.Amount, matchedQty)
+		bestAsk.Amount = new(uint256.Int).Sub(bestAsk.Amount, matchedQty)
+
+		if bestBid.Amount.IsZero() {
+			heap.Pop(ob.Bids)
+		}
+		if bestAsk.Amount.IsZero() {
+			heap.Pop(ob.Asks)
 		}
 	}
 
-	for ob.Asks.Len() > 0 && ob.Bids.Len() > 0 {
-		lowestAsk := heap.Pop(ob.Asks).(*Order)
-		var matchedBids []string
-
-		for ob.Bids.Len() > 0 {
-			highestBid := heap.Pop(ob.Bids).(*Order)
-
-			if highestBid.SqrtPrice.Cmp(lowestAsk.SqrtPrice) < 0 {
-				heap.Push(ob.Asks, lowestAsk)
-				heap.Push(ob.Bids, highestBid)
-				break
-			}
-
-			matchedBids = append(matchedBids, strconv.FormatUint(highestBid.Id, 10))
-			hasSellMatch = true
-
-			matchSize := new(uint256.Int)
-			if lowestAsk.Amount.Cmp(highestBid.Amount) < 0 {
-				matchSize.Set(lowestAsk.Amount)
-			} else {
-				matchSize.Set(highestBid.Amount)
-			}
-
-			lowestAsk.Amount.Sub(lowestAsk.Amount, matchSize)
-			highestBid.Amount.Sub(highestBid.Amount, matchSize)
-
-			if lowestAsk.Amount.Sign() == 0 {
-				break
-			}
-
-			if highestBid.Amount.Sign() > 0 {
-				heap.Push(ob.Bids, highestBid)
-			}
-		}
-
-		if len(matchedBids) > 0 {
-			sellToBuy[strconv.FormatUint(lowestAsk.Id, 10)] = matchedBids
-		}
+	if len(trades) == 0 {
+		return nil, ErrNoMatch
 	}
-
-	if !hasBuyMatch && !hasSellMatch {
-		return nil, nil, ErrNoMatch
-	}
-
-	if hasBuyMatch && !hasSellMatch {
-		return buyToSell, nil, nil
-	}
-	if hasSellMatch && !hasBuyMatch {
-		return nil, sellToBuy, nil
-	}
-
-	return buyToSell, sellToBuy, nil
+	return trades, nil
 }

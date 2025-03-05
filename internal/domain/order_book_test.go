@@ -27,15 +27,17 @@ func TestBidFullyMatchedBySingleAsk(t *testing.T) {
 		{Id: 1, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(50), Type: &OrderTypeBuy},
 	}
 	asks := []*Order{
-		{Id: 3, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(50), Type: &OrderTypeSell},
+		{Id: 2, Hook: testHook, SqrtPrice: uint256.NewInt(90), Amount: uint256.NewInt(50), Type: &OrderTypeSell},
 	}
 	orderBook := setupOrderBook(bids, asks)
 
-	expected := map[string][]string{"1": {"3"}}
-	buyToSell, sellToBuy, err := orderBook.MatchOrders()
+	expectedTrades := []*Trade{
+		{BidId: 1, AskId: 2, Price: uint256.NewInt(90), Amount: uint256.NewInt(50)},
+	}
+
+	trades, err := orderBook.MatchOrders()
 	assert.NoError(t, err)
-	assert.Equal(t, expected, buyToSell)
-	assert.Nil(t, sellToBuy)
+	assert.Equal(t, expectedTrades, trades)
 }
 
 func TestBidFullyMatchedByMultipleAsks(t *testing.T) {
@@ -43,32 +45,39 @@ func TestBidFullyMatchedByMultipleAsks(t *testing.T) {
 		{Id: 1, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(100), Type: &OrderTypeBuy},
 	}
 	asks := []*Order{
-		{Id: 3, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(40), Type: &OrderTypeSell},
-		{Id: 4, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(60), Type: &OrderTypeSell},
+		{Id: 2, Hook: testHook, SqrtPrice: uint256.NewInt(90), Amount: uint256.NewInt(40), Type: &OrderTypeSell},
+		{Id: 3, Hook: testHook, SqrtPrice: uint256.NewInt(85), Amount: uint256.NewInt(60), Type: &OrderTypeSell},
 	}
 	orderBook := setupOrderBook(bids, asks)
 
-	expected := map[string][]string{"1": {"3", "4"}}
-	buyToSell, sellToBuy, err := orderBook.MatchOrders()
+	expectedTrades := []*Trade{
+		{BidId: 1, AskId: 3, Price: uint256.NewInt(85), Amount: uint256.NewInt(60)},
+		{BidId: 1, AskId: 2, Price: uint256.NewInt(90), Amount: uint256.NewInt(40)},
+	}
+
+	trades, err := orderBook.MatchOrders()
 	assert.NoError(t, err)
-	assert.Equal(t, expected, buyToSell)
-	assert.Nil(t, sellToBuy)
+	assert.Equal(t, expectedTrades, trades)
 }
 
 func TestBidPartiallyMatched(t *testing.T) {
 	bids := []*Order{
-		{Id: 1, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(100), Type: &OrderTypeBuy},
+		{Id: 1, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(80), Type: &OrderTypeBuy},
 	}
 	asks := []*Order{
-		{Id: 3, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(50), Type: &OrderTypeSell},
+		{Id: 2, Hook: testHook, SqrtPrice: uint256.NewInt(90), Amount: uint256.NewInt(50), Type: &OrderTypeSell},
+		{Id: 3, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(40), Type: &OrderTypeSell},
 	}
 	orderBook := setupOrderBook(bids, asks)
 
-	expected := map[string][]string{"1": {"3"}}
-	buyToSell, sellToBuy, err := orderBook.MatchOrders()
+	expectedTrades := []*Trade{
+		{BidId: 1, AskId: 2, Price: uint256.NewInt(90), Amount: uint256.NewInt(50)},
+		{BidId: 1, AskId: 3, Price: uint256.NewInt(100), Amount: uint256.NewInt(30)},
+	}
+
+	trades, err := orderBook.MatchOrders()
 	assert.NoError(t, err)
-	assert.Equal(t, expected, buyToSell)
-	assert.Nil(t, sellToBuy)
+	assert.Equal(t, expectedTrades, trades)
 }
 
 func TestAskFullyMatchedBySingleBid(t *testing.T) {
@@ -80,28 +89,33 @@ func TestAskFullyMatchedBySingleBid(t *testing.T) {
 	}
 	orderBook := setupOrderBook(bids, asks)
 
-	expected := map[string][]string{"2": {"1"}}
-	buyToSell, sellToBuy, err := orderBook.MatchOrders()
+	expectedTrades := []*Trade{
+		{BidId: 1, AskId: 2, Price: uint256.NewInt(100), Amount: uint256.NewInt(50)},
+	}
+
+	trades, err := orderBook.MatchOrders()
 	assert.NoError(t, err)
-	assert.Nil(t, buyToSell)
-	assert.Equal(t, expected, sellToBuy)
+	assert.Equal(t, expectedTrades, trades)
 }
 
 func TestAskFullyMatchedByMultipleBids(t *testing.T) {
 	bids := []*Order{
-		{Id: 1, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(40), Type: &OrderTypeBuy},
-		{Id: 2, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(60), Type: &OrderTypeBuy},
+		{Id: 1, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(60), Type: &OrderTypeBuy},
+		{Id: 2, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(40), Type: &OrderTypeBuy},
 	}
 	asks := []*Order{
-		{Id: 3, Hook: testHook, SqrtPrice: uint256.NewInt(100), Amount: uint256.NewInt(100), Type: &OrderTypeSell},
+		{Id: 3, Hook: testHook, SqrtPrice: uint256.NewInt(90), Amount: uint256.NewInt(100), Type: &OrderTypeSell},
 	}
 	orderBook := setupOrderBook(bids, asks)
 
-	expected := map[string][]string{"3": {"1", "2"}}
-	buyToSell, sellToBuy, err := orderBook.MatchOrders()
+	expectedTrades := []*Trade{
+		{BidId: 1, AskId: 3, Price: uint256.NewInt(90), Amount: uint256.NewInt(60)},
+		{BidId: 2, AskId: 3, Price: uint256.NewInt(90), Amount: uint256.NewInt(40)},
+	}
+
+	trades, err := orderBook.MatchOrders()
 	assert.NoError(t, err)
-	assert.Nil(t, buyToSell)
-	assert.Equal(t, expected, sellToBuy)
+	assert.Equal(t, expectedTrades, trades)
 }
 
 func TestBidNoMatchingAsk(t *testing.T) {
@@ -111,10 +125,10 @@ func TestBidNoMatchingAsk(t *testing.T) {
 	asks := []*Order{}
 	orderBook := setupOrderBook(bids, asks)
 
-	buyToSell, sellToBuy, err := orderBook.MatchOrders()
+	trades, err := orderBook.MatchOrders()
 	assert.Error(t, err)
-	assert.Nil(t, buyToSell)
-	assert.Nil(t, sellToBuy)
+	assert.Nil(t, trades)
+	assert.Equal(t, ErrNoMatch, err)
 }
 
 func TestAskNoMatchingBid(t *testing.T) {
@@ -124,8 +138,8 @@ func TestAskNoMatchingBid(t *testing.T) {
 	}
 	orderBook := setupOrderBook(bids, asks)
 
-	buyToSell, sellToBuy, err := orderBook.MatchOrders()
+	trades, err := orderBook.MatchOrders()
 	assert.Error(t, err)
-	assert.Nil(t, buyToSell)
-	assert.Nil(t, sellToBuy)
+	assert.Nil(t, trades)
+	assert.Equal(t, ErrNoMatch, err)
 }
