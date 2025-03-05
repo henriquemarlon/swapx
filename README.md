@@ -4,7 +4,7 @@
 </p>
 <br>
 <div align="center">
-    <i>EVM Linux Coprocessor as an orderbook for UniswapV4 Hooks</i>
+    <i>An EVM Linux-powered coprocessor as an orderbook for UniswapV4 Hooks</i>
 </div>
 <div align="center">
 <b>Cartesi Coprocessor orderbook powered by EigenLayer cryptoeconomic security</b>
