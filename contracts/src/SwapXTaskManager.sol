@@ -20,7 +20,6 @@ contract SwapXTaskManager is CoprocessorAdapter {
 
     function createTask(bytes memory payload) external payable {
         //TODO: define tokenomics model
-
         bytes memory input = abi.encodeCall(
             Inputs.EvmAdvance,
             (

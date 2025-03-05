@@ -17,7 +17,7 @@ import {IHooks} from "v4-core/src/interfaces/IHooks.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {Currency} from "v4-core/src/types/Currency.sol";
-import {HookMiner} from "./HookMiner.sol";
+import {HookMiner} from "../test/utils/HookMiner.sol";
 import {SwapXHook} from "src/SwapXHook.sol";
 import {ISwapXTaskManager} from "src/interface/ISwapXHook.sol";
 import {SwapXTaskManager} from "src/SwapXTaskManager.sol";
