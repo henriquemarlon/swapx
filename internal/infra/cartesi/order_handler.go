@@ -67,24 +67,13 @@ func (oh *MatchOrdersHandler) MatchOrdersHandler(input *coprocessor.AdvanceRespo
 	}
 
 	sender := input.Metadata.MsgSender
-	for orderId, counterOrders := range res.BuyToSell {
-		for _, counterId := range counterOrders {
-			encodedData, err := outputArgs.Pack(sender, orderId, counterId)
-			if err != nil {
-				return err
-			}
-			coprocessor.SendNotice(&coprocessor.NoticeRequest{Payload: "0x" + common.Bytes2Hex(encodedData)})
-		}
-	}
 
-	for orderId, counterOrders := range res.SellToBuy {
-		for _, counterId := range counterOrders {
-			encodedData, err := outputArgs.Pack(sender, counterId, orderId)
-			if err != nil {
-				return err
-			}
-			coprocessor.SendNotice(&coprocessor.NoticeRequest{Payload: "0x" + common.Bytes2Hex(encodedData)})
+	for _, trade := range res.Trades {
+		encodedData, err := outputArgs.Pack(sender, trade.BidId, trade.AskId)
+		if err != nil {
+			return err
 		}
+		coprocessor.SendNotice(&coprocessor.NoticeRequest{Payload: "0x" + common.Bytes2Hex(encodedData)})
 	}
 	return nil
 }

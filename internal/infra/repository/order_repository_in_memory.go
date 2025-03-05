@@ -41,7 +41,7 @@ func (r *OrderRepositoryInMemory) FindAllOrders() ([]*domain.Order, error) {
 	return orders, nil
 }
 
-func (r *OrderRepositoryInMemory) FindOrderByTypeAndId(orderType string, id uint64) (*domain.Order, error) {
+func (r *OrderRepositoryInMemory) FindOrderById(orderType string, id uint64) (*domain.Order, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
 

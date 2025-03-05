@@ -23,7 +23,7 @@ type OrderRepository interface {
 	CreateOrder(order *Order) (*Order, error)
 	FindAllOrders() ([]*Order, error)
 	FindOrdersByType(orderType string) ([]*Order, error)
-	FindOrderByTypeAndId(orderType string, id uint64) (*Order, error)
+	FindOrderById(orderType string, id uint64) (*Order, error)
 }
 
 type Order struct {
