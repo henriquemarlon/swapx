@@ -20,7 +20,7 @@ func (f *DefaultGioHandlerFactory) NewGioHandler(domain uint16) (GioHandler, err
 	switch domain {
 	case 0x27:
 		return NewGioGetStorage(f.BaseUrl, domain), nil
-	// Adicione novos cases aqui conforme necessário
+	// Add new cases here
 	default:
 		return nil, errors.New("domain not supported")
 	}
