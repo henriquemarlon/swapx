@@ -86,22 +86,3 @@ make buy
 ```bash
 make sell
 ```
-
-> [!NOTE]
-> WIP
-
-### Demo
-WIP
-
-
-
-| **Scenario** | **Description** | **Output** |
-|-------------|---------------|----------|
-| **4. Ask fully matched by a single Bid** | An ask order is fully matched by a single bid at the same price. | `sellToBuy` populated, `buyToSell = nil` |
-| **5. Ask fully matched by multiple Bids (prioritizing larger orders)** | An ask order is matched by multiple bids at the same price, prioritizing the larger quantity first. | `sellToBuy` populated, `buyToSell = nil` |
-| **6. Ask partially matched (remaining amount persists)** | An ask order is partially matched, but some amount remains in the order book. | `sellToBuy` populated, `buyToSell = nil` |
-| **8. Ask arrives but finds no matching Bid** | An ask order is placed, but no bids are available to match. | `nil, nil` |
-| **10. Ask finds multiple Bids at different prices (prioritizing higher prices first)** | An ask is matched with bids at different price levels. | `sellToBuy` populated, `buyToSell = nil` |
-| **11. Larger order included in match even if only partially filled** | A bid or ask with a large amount is partially matched, but it is still included in the match list. | `buyToSell` or `sellToBuy` populated, with remaining amount in the order book. |
-
-map[string][]string -> map[uint64][]uint64
