@@ -71,12 +71,6 @@ jobs:
         run: |
           forge --version
 
-      - name: Run Forge build
-        run: |
-          forge build --sizes
-        id: build
-        working-directory: contracts
-
       - name: Run Forge tests
         run: |
           forge test -vvv
