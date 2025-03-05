@@ -64,6 +64,7 @@ func (oh *MatchOrdersHandler) MatchOrdersHandler(input *coprocessor.AdvanceRespo
 		{Type: addressType},
 		{Type: uint256Type},
 		{Type: uint256Type},
+		{Type: uint256Type},
 	}
 
 	sender := input.Metadata.MsgSender

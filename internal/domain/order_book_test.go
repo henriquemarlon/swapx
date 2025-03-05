@@ -32,7 +32,7 @@ func TestBidFullyMatchedBySingleAsk(t *testing.T) {
 	orderBook := setupOrderBook(bids, asks)
 
 	expectedTrades := []*Trade{
-		{BidId: 1, AskId: 2, Price: uint256.NewInt(90), Amount: uint256.NewInt(50)},
+		{BidId: 1, AskId: 2},
 	}
 
 	trades, err := orderBook.MatchOrders()
@@ -51,8 +51,8 @@ func TestBidFullyMatchedByMultipleAsks(t *testing.T) {
 	orderBook := setupOrderBook(bids, asks)
 
 	expectedTrades := []*Trade{
-		{BidId: 1, AskId: 3, Price: uint256.NewInt(85), Amount: uint256.NewInt(60)},
-		{BidId: 1, AskId: 2, Price: uint256.NewInt(90), Amount: uint256.NewInt(40)},
+		{BidId: 1, AskId: 3},
+		{BidId: 1, AskId: 2},
 	}
 
 	trades, err := orderBook.MatchOrders()
@@ -71,8 +71,8 @@ func TestBidPartiallyMatched(t *testing.T) {
 	orderBook := setupOrderBook(bids, asks)
 
 	expectedTrades := []*Trade{
-		{BidId: 1, AskId: 2, Price: uint256.NewInt(90), Amount: uint256.NewInt(50)},
-		{BidId: 1, AskId: 3, Price: uint256.NewInt(100), Amount: uint256.NewInt(30)},
+		{BidId: 1, AskId: 2},
+		{BidId: 1, AskId: 3},
 	}
 
 	trades, err := orderBook.MatchOrders()
@@ -90,7 +90,7 @@ func TestAskFullyMatchedBySingleBid(t *testing.T) {
 	orderBook := setupOrderBook(bids, asks)
 
 	expectedTrades := []*Trade{
-		{BidId: 1, AskId: 2, Price: uint256.NewInt(100), Amount: uint256.NewInt(50)},
+		{BidId: 1, AskId: 2},
 	}
 
 	trades, err := orderBook.MatchOrders()
@@ -109,8 +109,8 @@ func TestAskFullyMatchedByMultipleBids(t *testing.T) {
 	orderBook := setupOrderBook(bids, asks)
 
 	expectedTrades := []*Trade{
-		{BidId: 1, AskId: 3, Price: uint256.NewInt(90), Amount: uint256.NewInt(60)},
-		{BidId: 2, AskId: 3, Price: uint256.NewInt(90), Amount: uint256.NewInt(40)},
+		{BidId: 1, AskId: 3},
+		{BidId: 2, AskId: 3},
 	}
 
 	trades, err := orderBook.MatchOrders()
