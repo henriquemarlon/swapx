@@ -7,16 +7,9 @@ import {CoprocessorAdapter} from "../lib/coprocessor-base-contract/src/Coprocess
 import {SwapXHook} from "./SwapXHook.sol";
 
 contract SwapXTaskManager is CoprocessorAdapter {
-    error InputTooLarge(
-        address appContract,
-        uint256 inputLength,
-        uint256 maxInputLength
-    );
+    error InputTooLarge(address appContract, uint256 inputLength, uint256 maxInputLength);
 
-    constructor(
-        address _taskIssuer,
-        bytes32 _machineHash
-    ) CoprocessorAdapter(_taskIssuer, _machineHash) {}
+    constructor(address _taskIssuer, bytes32 _machineHash) CoprocessorAdapter(_taskIssuer, _machineHash) {}
 
     function createTask(bytes memory payload) external payable {
         //TODO: define tokenomics model
@@ -35,17 +28,13 @@ contract SwapXTaskManager is CoprocessorAdapter {
         );
 
         if (input.length > CanonicalMachine.INPUT_MAX_SIZE) {
-            revert InputTooLarge(
-                address(this),
-                input.length,
-                CanonicalMachine.INPUT_MAX_SIZE
-            );
+            revert InputTooLarge(address(this), input.length, CanonicalMachine.INPUT_MAX_SIZE);
         }
 
         callCoprocessor(input);
     }
 
-    function handleNotice(bytes32 /* payloadHash8 */, bytes memory notice) internal override {
+    function handleNotice(bytes32, /* payloadHash8 */ bytes memory notice) internal override {
         (uint256 buyOrderId, uint256 sellOrderId, address hookAddress) = abi.decode(notice, (uint256, uint256, address));
         SwapXHook hook = SwapXHook(hookAddress);
         hook.executeAsyncSwap(buyOrderId, sellOrderId);
