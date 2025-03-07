@@ -42,57 +42,21 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
     //events
 
-    event BuyOrderCreated(
-        uint256 indexed buyOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
-    );
-    event SellOrderCreated(
-        uint256 indexed sellOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
-    );
+    event BuyOrderCreated(uint256 indexed buyOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
+    event SellOrderCreated(uint256 indexed sellOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
 
-    event BuyOrderFulfilled(
-        uint256 indexed buyOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
-    );
-    event SellOrderFulfilled(
-        uint256 indexed sellOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
-    );
+    event BuyOrderFulfilled(uint256 indexed buyOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
+    event SellOrderFulfilled(uint256 indexed sellOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
 
     event BuyOrderPartiallyFulfilled(
-        uint256 indexed buyOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
+        uint256 indexed buyOrderId, address indexed account, uint256 sqrtPrice, uint256 amount
     );
     event SellOrderPartiallyFulfilled(
-        uint256 indexed sellOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
+        uint256 indexed sellOrderId, address indexed account, uint256 sqrtPrice, uint256 amount
     );
 
-    event BuyOrderCancelled(
-        uint256 indexed buyOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
-    );
-    event SellOrderCancelled(
-        uint256 indexed sellOrderId,
-        address indexed account,
-        uint256 sqrtPrice,
-        uint256 amount
-    );
+    event BuyOrderCancelled(uint256 indexed buyOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
+    event SellOrderCancelled(uint256 indexed sellOrderId, address indexed account, uint256 sqrtPrice, uint256 amount);
 
     // errors
 
@@ -102,18 +66,11 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
     error OrderAmountsDoNotMatch();
     error OrderSqrtPricesDoNotMatch();
 
-    constructor(
-        IPoolManager _poolManager,
-        ISwapXTaskManager _swapXTaskManager
-    ) BaseAsyncSwap(_poolManager) {
+    constructor(IPoolManager _poolManager, ISwapXTaskManager _swapXTaskManager) BaseAsyncSwap(_poolManager) {
         swapXTaskManager = _swapXTaskManager;
     }
 
-    function _beforeInitialize(
-        address,
-        PoolKey calldata key,
-        uint160
-    ) internal virtual override returns (bytes4) {
+    function _beforeInitialize(address, PoolKey calldata key, uint160) internal virtual override returns (bytes4) {
         currency0 = key.currency0;
         currency1 = key.currency1;
         return this.beforeInitialize.selector;
@@ -128,9 +85,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         // Async swaps are only possible on exact-input swaps, so exact-output swaps are executed by the `PoolManager` as normal
         if (params.amountSpecified < 0 && hookData.length > 0) {
             // Determine which currency is specified
-            Currency specified = params.zeroForOne
-                ? key.currency0
-                : key.currency1;
+            Currency specified = params.zeroForOne ? key.currency0 : key.currency1;
 
             // Get the positive specified amount
             uint256 specifiedAmount = uint256(-params.amountSpecified);
@@ -138,103 +93,52 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
             // Mint ERC-6909 claim token for the specified currency and amount
             specified.take(poolManager, address(this), specifiedAmount, false);
 
-            (uint256 sqrtPrice, address sender) = abi.decode(
-                hookData,
-                (uint256, address)
-            );
+            (uint256 sqrtPrice, address sender) = abi.decode(hookData, (uint256, address));
 
-            Order memory order = Order({
-                account: sender,
-                sqrtPrice: sqrtPrice,
-                amount: specifiedAmount
-            });
+            Order memory order = Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount});
 
             if (params.zeroForOne) {
-                emit BuyOrderCreated(
-                    buyOrders.length,
-                    sender,
-                    sqrtPrice,
-                    specifiedAmount
-                );
+                emit BuyOrderCreated(buyOrders.length, sender, sqrtPrice, specifiedAmount);
                 buyOrders.push(order);
-                swapXTaskManager.createTask(
-                    abi.encode(
-                        buyOrders.length,
-                        order.sqrtPrice,
-                        order.amount,
-                        uint256(0)
-                    )
-                );
+                swapXTaskManager.createTask(abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(0)));
             } else {
-                emit SellOrderCreated(
-                    sellOrders.length,
-                    sender,
-                    sqrtPrice,
-                    specifiedAmount
-                );
+                emit SellOrderCreated(sellOrders.length, sender, sqrtPrice, specifiedAmount);
                 sellOrders.push(order);
-                swapXTaskManager.createTask(
-                    abi.encode(
-                        buyOrders.length,
-                        order.sqrtPrice,
-                        order.amount,
-                        uint256(1)
-                    )
-                );
+                swapXTaskManager.createTask(abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(1)));
             }
 
             // Return delta that nets out specified amount to 0.
-            return (
-                this.beforeSwap.selector,
-                toBeforeSwapDelta(specifiedAmount.toInt128(), 0),
-                0
-            );
+            return (this.beforeSwap.selector, toBeforeSwapDelta(specifiedAmount.toInt128(), 0), 0);
         } else {
-            return (
-                this.beforeSwap.selector,
-                BeforeSwapDeltaLibrary.ZERO_DELTA,
-                0
-            );
+            return (this.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, 0);
         }
     }
 
-    function getHookPermissions()
-        public
-        pure
-        virtual
-        override
-        returns (Hooks.Permissions memory permissions)
-    {
-        return
-            Hooks.Permissions({
-                beforeInitialize: true, // adding beforeInitialize to the hook permissions
-                afterInitialize: false,
-                beforeAddLiquidity: false,
-                beforeRemoveLiquidity: false,
-                afterAddLiquidity: false,
-                afterRemoveLiquidity: false,
-                beforeSwap: true,
-                afterSwap: false,
-                beforeDonate: false,
-                afterDonate: false,
-                beforeSwapReturnDelta: true,
-                afterSwapReturnDelta: false,
-                afterAddLiquidityReturnDelta: false,
-                afterRemoveLiquidityReturnDelta: false
-            });
+    function getHookPermissions() public pure virtual override returns (Hooks.Permissions memory permissions) {
+        return Hooks.Permissions({
+            beforeInitialize: true, // adding beforeInitialize to the hook permissions
+            afterInitialize: false,
+            beforeAddLiquidity: false,
+            beforeRemoveLiquidity: false,
+            afterAddLiquidity: false,
+            afterRemoveLiquidity: false,
+            beforeSwap: true,
+            afterSwap: false,
+            beforeDonate: false,
+            afterDonate: false,
+            beforeSwapReturnDelta: true,
+            afterSwapReturnDelta: false,
+            afterAddLiquidityReturnDelta: false,
+            afterRemoveLiquidityReturnDelta: false
+        });
     }
 
     function executeAsyncSwap(uint256 buyOrderId, uint256 sellOrderId) public {
-        if (
-            buyOrderId >= buyOrders.length || sellOrderId >= sellOrders.length
-        ) {
+        if (buyOrderId >= buyOrders.length || sellOrderId >= sellOrders.length) {
             revert OrderDoesNotExist();
         }
 
-        if (
-            buyOrderFulfilledOrCancelled[buyOrderId] ||
-            sellOrderFulfilledOrCancelled[sellOrderId]
-        ) {
+        if (buyOrderFulfilledOrCancelled[buyOrderId] || sellOrderFulfilledOrCancelled[sellOrderId]) {
             revert OrderAlreadyFulfilledOrCancelled();
         }
 
@@ -245,47 +149,25 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
             revert OrderSqrtPricesDoNotMatch();
         }
 
-        uint256 tradeAmount = buyOrder.amount < sellOrder.amount
-            ? buyOrder.amount
-            : sellOrder.amount;
+        uint256 tradeAmount = buyOrder.amount < sellOrder.amount ? buyOrder.amount : sellOrder.amount;
 
         currency1.transfer(buyOrder.account, tradeAmount);
         currency0.transfer(sellOrder.account, tradeAmount);
 
         if (tradeAmount == buyOrder.amount) {
             buyOrderFulfilledOrCancelled[buyOrderId] = true;
-            emit BuyOrderFulfilled(
-                buyOrderId,
-                buyOrder.account,
-                buyOrder.sqrtPrice,
-                tradeAmount
-            );
+            emit BuyOrderFulfilled(buyOrderId, buyOrder.account, buyOrder.sqrtPrice, tradeAmount);
         } else {
             buyOrder.amount -= tradeAmount;
-            emit BuyOrderPartiallyFulfilled(
-                buyOrderId,
-                buyOrder.account,
-                buyOrder.sqrtPrice,
-                tradeAmount
-            );
+            emit BuyOrderPartiallyFulfilled(buyOrderId, buyOrder.account, buyOrder.sqrtPrice, tradeAmount);
         }
 
         if (tradeAmount == sellOrder.amount) {
             sellOrderFulfilledOrCancelled[sellOrderId] = true;
-            emit SellOrderFulfilled(
-                sellOrderId,
-                sellOrder.account,
-                sellOrder.sqrtPrice,
-                tradeAmount
-            );
+            emit SellOrderFulfilled(sellOrderId, sellOrder.account, sellOrder.sqrtPrice, tradeAmount);
         } else {
             sellOrder.amount -= tradeAmount;
-            emit SellOrderPartiallyFulfilled(
-                sellOrderId,
-                sellOrder.account,
-                sellOrder.sqrtPrice,
-                tradeAmount
-            );
+            emit SellOrderPartiallyFulfilled(sellOrderId, sellOrder.account, sellOrder.sqrtPrice, tradeAmount);
         }
     }
 
@@ -308,12 +190,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
         currency0.transfer(buyOrder.account, buyOrder.amount);
 
-        emit BuyOrderCancelled(
-            orderId,
-            buyOrder.account,
-            buyOrder.sqrtPrice,
-            buyOrder.amount
-        );
+        emit BuyOrderCancelled(orderId, buyOrder.account, buyOrder.sqrtPrice, buyOrder.amount);
     }
 
     function cancelSellOrder(uint256 orderId) public {
@@ -335,11 +212,6 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
 
         currency1.transfer(sellOrder.account, sellOrder.amount);
 
-        emit SellOrderCancelled(
-            orderId,
-            sellOrder.account,
-            sellOrder.sqrtPrice,
-            sellOrder.amount
-        );
+        emit SellOrderCancelled(orderId, sellOrder.account, sellOrder.sqrtPrice, sellOrder.amount);
     }
 }

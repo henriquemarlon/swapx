@@ -45,7 +45,11 @@ contract SwapXHookTest is Test, Deployers {
 
         ISwapXTaskManager swapXManager = ISwapXTaskManager(address(new SwapXManagerMock()));
 
-        hook = SwapXHook(address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_INITIALIZE_FLAG)));
+        hook = SwapXHook(
+            address(
+                uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_INITIALIZE_FLAG)
+            )
+        );
         deployCodeTo("src/SwapXHook.sol:SwapXHook", abi.encode(manager, swapXManager), address(hook));
 
         deployMintAndApprove2Currencies();
@@ -188,7 +192,6 @@ contract SwapXHookTest is Test, Deployers {
 
         assertEq(currency0.balanceOf(SELLER), sellerBalance0Before + 100);
         assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
-
     }
 
     function test_executeAsyncSwap_differentPrices_succeeds() public {
@@ -225,7 +228,7 @@ contract SwapXHookTest is Test, Deployers {
         vm.prank(SELLER);
         MockERC20(Currency.unwrap(currency1)).approve(address(swapRouter), 1e20);
         vm.prank(SELLER);
-        swapRouter.swap(key, swapParams2, testSettings, abi.encode(sqrtPrice /2, SELLER));
+        swapRouter.swap(key, swapParams2, testSettings, abi.encode(sqrtPrice / 2, SELLER));
 
         assertEq(currency0.balanceOf(SELLER), sellerBalance0Before);
         assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
@@ -237,8 +240,7 @@ contract SwapXHookTest is Test, Deployers {
 
         assertEq(currency0.balanceOf(SELLER), sellerBalance0Before + 100);
         assertEq(currency1.balanceOf(SELLER), sellerBalance1Before - 100);
-
     }
 
-    // 
+    //
 }
