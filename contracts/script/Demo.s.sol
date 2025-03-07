@@ -83,7 +83,6 @@ contract Demo is Script {
     }
 
     function run() public {
-        vm.startBroadcast();
         IPoolManager.SwapParams memory buySwapParams = IPoolManager.SwapParams({
             zeroForOne: true,
             amountSpecified: -100,
@@ -98,11 +97,14 @@ contract Demo is Script {
 
         PoolSwapTest.TestSettings memory testSettings =
             PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
-        vm.stopBroadcast();
 
         vm.startBroadcast();
+
         swapRouter.swap(key, buySwapParams, testSettings, abi.encode(1000000000000000000, msg.sender));
+
+        vm.roll(block.number + 1);
         swapRouter.swap(key, sellSwapParams, testSettings, abi.encode(1000000000000000000, msg.sender));
+
         vm.stopBroadcast();
     }
 
