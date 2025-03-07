@@ -11,6 +11,10 @@ infra:
 		-t operator:latest ./third_party/cartesi-coprocessor-operator
 	@cd third_party/cartesi-coprocessor; docker compose -f docker-compose-devnet.yaml up --build
 
+.PHONY: anvil
+anvil:
+	@cd third_party/cartesi-coprocessor; docker compose -f docker-compose-devnet.yaml up anvil --build
+
 .PHONY: clean
 clean:
 	@rm -rf ./contracts/out
@@ -35,6 +39,7 @@ coverage: test
 .PHONY: fmt
 fmt:
 	@go fmt ./...
+	@forge fmt --root contracts
 
 .PHONY: gen
 gen:
@@ -51,28 +56,20 @@ v4:
 		--root contracts \
 		--rpc-url $(RPC_URL) \
 		--private-key $(PRIVATE_KEY) \
-		-v
+		-vvvv
 
 .PHONY: hook
 hook:
-	@forge script ./contracts/script/DeployHook.s.sol --broadcast \
+	@forge script ./contracts/script/HookDeployer.s.sol --broadcast \
 		--root contracts \
 		--rpc-url $(RPC_URL) \
 		--private-key $(PRIVATE_KEY) \
-		-v
+		-vvvv
 
-.PHONY: buy
-buy:
-	@forge script ./contracts/script/SendBuyOrder.s.sol --broadcast \
+.PHONY: demo
+demo:
+	@forge script ./contracts/script/Demo.s.sol --broadcast \
 		--root contracts \
 		--rpc-url $(RPC_URL) \
 		--private-key $(PRIVATE_KEY) \
-		-v
-
-.PHONY: sell
-sell:
-	@forge script ./contracts/script/SendSellOrder.s.sol --broadcast \
-		--root contracts \
-		--rpc-url $(RPC_URL) \
-		--private-key $(PRIVATE_KEY) \
-		-v
+		-vvvv
