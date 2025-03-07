@@ -22,8 +22,8 @@ import {PoolModifyLiquidityTest} from "v4-core/src/test/PoolModifyLiquidityTest.
 contract Demo is Script {
     PoolKey key;
 
-    MockERC20 tokenA;
-    MockERC20 tokenB;
+    MockERC20 tk0;
+    MockERC20 tk1;
 
     SwapXHook hook;
     PoolSwapTest swapRouter;
@@ -34,11 +34,7 @@ contract Demo is Script {
     Currency currency1;
 
     function setUp() public {
-        vm.startBroadcast();
-
         string memory root = vm.projectRoot();
-
-        ////////
 
         string memory v4Path = string.concat(root, "/broadcast/V4Deployer.s.sol/31337/run-latest.json");
         string memory v4Json = vm.readFile(v4Path);
@@ -52,36 +48,35 @@ contract Demo is Script {
         modifyLiquidityRouter = PoolModifyLiquidityTest(modifyLiquidityRouterAddress);
         console.log("Deployed PoolModifyLiquidityTest at", address(modifyLiquidityRouter));
 
-        //////
-
         string memory hookPath = string.concat(root, "/broadcast/HookDeployer.s.sol/31337/run-latest.json");
         string memory hookJson = vm.readFile(hookPath);
 
-        address tokenAAddress = bytesToAddress(stdJson.parseRaw(hookJson, ".transactions[1].contractAddress"));
-        tokenA = MockERC20(tk0Address);
-        console.log("Deployed TokenA at", address(tokenA));
+        address tk0Address = bytesToAddress(stdJson.parseRaw(hookJson, ".transactions[1].contractAddress"));
+        tk0 = MockERC20(tk0Address);
+        console.log("Deployed TokenA at", address(tk0));
 
-        address tokenBAddress = bytesToAddress(stdJson.parseRaw(hookJson, ".transactions[2].contractAddress"));
-        tokenB = MockERC20(tk1Address);
-        console.log("Deployed TokenB at", address(tokenB));
+        address tk1Address = bytesToAddress(stdJson.parseRaw(hookJson, ".transactions[2].contractAddress"));
+        tk1 = MockERC20(tk1Address);
+        console.log("Deployed TokenB at", address(tk1));
 
         address swapXHookAddress = bytesToAddress(stdJson.parseRaw(hookJson, ".transactions[9].contractAddress"));
         hook = SwapXHook(swapXHookAddress);
         console.log("Deployed SwapXHook at", address(hook));
 
-        if (address(tokenA) > address(tokenB)) {
-            (currency0, currency1) = (Currency.wrap(address(tokenB)), Currency.wrap(address(tokenA)));
+        vm.startBroadcast();
+        if (address(tk0) > address(tk1)) {
+            (currency0, currency1) = (Currency.wrap(address(tk1)), Currency.wrap(address(tk0)));
         } else {
-            (currency0, currency1) = (Currency.wrap(address(tokenA)), Currency.wrap(address(tokenB)));
+            (currency0, currency1) = (Currency.wrap(address(tk0)), Currency.wrap(address(tk1)));
         }
 
-        tokenA.approve(address(modifyLiquidityRouter), type(uint256).max);
-        tokenB.approve(address(modifyLiquidityRouter), type(uint256).max);
-        tokenA.approve(address(swapRouter), type(uint256).max);
-        tokenB.approve(address(swapRouter), type(uint256).max);
+        tk0.approve(address(modifyLiquidityRouter), type(uint256).max);
+        tk1.approve(address(modifyLiquidityRouter), type(uint256).max);
+        tk0.approve(address(swapRouter), type(uint256).max);
+        tk1.approve(address(swapRouter), type(uint256).max);
 
-        tokenB.mint(msg.sender, 100 * 10 ** 18);
-        tokenA.mint(msg.sender, 100 * 10 ** 18);
+        tk1.mint(msg.sender, 100 * 10 ** 18);
+        tk0.mint(msg.sender, 100 * 10 ** 18);
 
         key = PoolKey({currency0: currency0, currency1: currency1, fee: 3000, tickSpacing: 120, hooks: hook});
         vm.stopBroadcast();
@@ -89,7 +84,6 @@ contract Demo is Script {
 
     function run() public {
         vm.startBroadcast();
-
         IPoolManager.SwapParams memory buySwapParams = IPoolManager.SwapParams({
             zeroForOne: true,
             amountSpecified: -100,
@@ -104,9 +98,10 @@ contract Demo is Script {
 
         PoolSwapTest.TestSettings memory testSettings =
             PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+        vm.stopBroadcast();
 
+        vm.startBroadcast();
         swapRouter.swap(key, buySwapParams, testSettings, abi.encode(1000000000000000000, msg.sender));
-
         swapRouter.swap(key, sellSwapParams, testSettings, abi.encode(1000000000000000000, msg.sender));
         vm.stopBroadcast();
     }

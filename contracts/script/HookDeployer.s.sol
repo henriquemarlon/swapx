@@ -35,8 +35,6 @@ contract HookDeployer is Script {
     Currency token1;
 
     function setUp() public {
-        vm.startBroadcast();
-
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/broadcast/V4Deployer.s.sol/31337/run-latest.json");
         string memory json = vm.readFile(path);
@@ -56,32 +54,38 @@ contract HookDeployer is Script {
 
         address taskIssuerAddress = vm.parseAddress(vm.prompt("Enter Coprocessor address"));
         bytes32 machineHash = vm.parseBytes32(vm.prompt("Enter machine hash"));
-        
+
+        vm.startBroadcast();
         swapXTaskManager = new SwapXTaskManager(taskIssuerAddress, machineHash);
         console.log("Deployed SwapXTaskManager at", address(swapXTaskManager));
-        
+
         taskManager = ISwapXTaskManager(address(swapXTaskManager));
 
-        MockERC20 tokenA = new MockERC20("Token0", "TK0", 18);
-        MockERC20 tokenB = new MockERC20("Token1", "TK1", 18);
+        MockERC20 tk0 = new MockERC20("Token0", "TK0", 18);
+        MockERC20 tk1 = new MockERC20("Token1", "TK1", 18);
 
-        console.log("Deployed TokenA at", address(tokenA));
-        console.log("Deployed TokenB at", address(tokenB));
+        console.log("Deployed TokenA at", address(tk0));
+        console.log("Deployed TokenB at", address(tk1));
 
-        if (address(tokenA) > address(tokenB)) {
-            (token0, token1) = (Currency.wrap(address(tokenB)), Currency.wrap(address(tokenA)));
+        if (address(tk0) > address(tk1)) {
+            (token0, token1) = (Currency.wrap(address(tk1)), Currency.wrap(address(tk0)));
         } else {
-            (token0, token1) = (Currency.wrap(address(tokenA)), Currency.wrap(address(tokenB)));
+            (token0, token1) = (Currency.wrap(address(tk0)), Currency.wrap(address(tk1)));
         }
 
-        tokenA.approve(address(modifyLiquidityRouter), type(uint256).max);
-        tokenB.approve(address(modifyLiquidityRouter), type(uint256).max);
-        tokenA.approve(address(swapRouter), type(uint256).max);
-        tokenB.approve(address(swapRouter), type(uint256).max);
+        tk0.approve(address(modifyLiquidityRouter), type(uint256).max);
+        tk1.approve(address(modifyLiquidityRouter), type(uint256).max);
+        tk0.approve(address(swapRouter), type(uint256).max);
+        tk1.approve(address(swapRouter), type(uint256).max);
 
-        tokenA.mint(msg.sender, 100 * 10 ** 18);
-        tokenB.mint(msg.sender, 100 * 10 ** 18);
+        tk0.mint(msg.sender, 100 * 10 ** 18);
+        tk1.mint(msg.sender, 100 * 10 ** 18);
 
+        vm.stopBroadcast();
+    }
+
+    function run() public {
+        vm.startBroadcast();
         uint160 flags =
             uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG | Hooks.BEFORE_INITIALIZE_FLAG);
 
@@ -98,11 +102,6 @@ contract HookDeployer is Script {
         key = PoolKey({currency0: token0, currency1: token1, fee: 3000, tickSpacing: 120, hooks: hook});
 
         manager.initialize(key, 79228162514264337593543950336);
-        vm.stopBroadcast();
-    }
-
-    function run() public {
-        vm.startBroadcast();
 
         modifyLiquidityRouter.modifyLiquidity(
             key,
