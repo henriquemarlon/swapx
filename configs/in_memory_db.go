@@ -9,13 +9,13 @@ import (
 type InMemoryDB struct {
 	BuyOrders  map[uint64]*domain.Order
 	SellOrders map[uint64]*domain.Order
-	Mutex       *sync.RWMutex
+	Mutex      *sync.RWMutex
 }
 
 func SetupInMemoryDB() (*InMemoryDB, error) {
 	return &InMemoryDB{
 		BuyOrders:  make(map[uint64]*domain.Order),
 		SellOrders: make(map[uint64]*domain.Order),
-		Mutex:       &sync.RWMutex{},
+		Mutex:      &sync.RWMutex{},
 	}, nil
 }

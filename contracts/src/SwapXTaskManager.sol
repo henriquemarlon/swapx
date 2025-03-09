@@ -34,7 +34,7 @@ contract SwapXTaskManager is CoprocessorAdapter {
         callCoprocessor(input);
     }
 
-    function handleNotice(bytes32 /* payloadHash8 */, bytes memory notice) internal override {
+    function handleNotice(bytes32, /* payloadHash8 */ bytes memory notice) internal override {
         (address hookAddress, uint256 buyOrderId, uint256 sellOrderId) = abi.decode(notice, (address, uint256, uint256));
         SwapXHook hook = SwapXHook(hookAddress);
         hook.executeAsyncSwap(buyOrderId, sellOrderId);

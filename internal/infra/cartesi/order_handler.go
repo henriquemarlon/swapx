@@ -80,6 +80,6 @@ func (oh *MatchOrdersHandler) MatchOrdersHandler(input *coprocessor.AdvanceRespo
 		}
 		coprocessor.SendNotice(&coprocessor.NoticeRequest{Payload: "0x" + common.Bytes2Hex(encodedData)})
 	}
-	
+
 	return nil
 }

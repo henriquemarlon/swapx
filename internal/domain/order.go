@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	ErrInvalidOrder = errors.New("invalid order")
-	ErrOrderNotFound = errors.New("order not found")
-	ErrNoOrdersFound     = errors.New("no orders found")
+	ErrInvalidOrder       = errors.New("invalid order")
+	ErrOrderNotFound      = errors.New("order not found")
+	ErrNoOrdersFound      = errors.New("no orders found")
 	ErrOrderAlreadyExists = errors.New("order with this id already exists")
 )
 
