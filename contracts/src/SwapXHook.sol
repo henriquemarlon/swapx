@@ -98,13 +98,13 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
             Order memory order = Order({account: sender, sqrtPrice: sqrtPrice, amount: specifiedAmount});
 
             if (params.zeroForOne) {
-                emit BuyOrderCreated(buyOrders.length, sender, sqrtPrice, specifiedAmount);
                 buyOrders.push(order);
                 swapXTaskManager.createTask(abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(0)));
+                emit BuyOrderCreated(buyOrders.length, sender, sqrtPrice, specifiedAmount);
             } else {
-                emit SellOrderCreated(sellOrders.length, sender, sqrtPrice, specifiedAmount);
                 sellOrders.push(order);
-                swapXTaskManager.createTask(abi.encode(buyOrders.length, order.sqrtPrice, order.amount, uint256(1)));
+                swapXTaskManager.createTask(abi.encode(sellOrders.length, order.sqrtPrice, order.amount, uint256(1)));
+                emit SellOrderCreated(sellOrders.length, sender, sqrtPrice, specifiedAmount);
             }
 
             // Return delta that nets out specified amount to 0.

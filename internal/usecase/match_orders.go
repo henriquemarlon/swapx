@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -79,7 +79,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 	}
 
 	order, err := domain.NewOrder(
-		index.Uint64() + 1,
+		index.Uint64(),
 		metadata.MsgSender,
 		uint256.MustFromBig(price),
 		uint256.MustFromBig(quantity),
@@ -103,8 +103,8 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		common.BigToHash(big.NewInt(BUY_ORDERS_STORAGE_SLOT)),
 	)
 	if err != nil {
-		if err != service.ErrNoOrdersFound {
-			return nil, errors.New("cannot match order: no buy orders found")
+		if err == domain.ErrNoOrdersFound {
+			return nil, fmt.Errorf("%v with type sell", err)
 		}
 		buyOrders = nil
 	}
@@ -122,8 +122,8 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		common.BigToHash(big.NewInt(SELL_ORDERS_STORAGE_SLOT)),
 	)
 	if err != nil {
-		if err != service.ErrNoOrdersFound {
-			return nil, errors.New("cannot match order: no sell orders found")
+		if err == domain.ErrNoOrdersFound {
+			return nil, fmt.Errorf("%v with type sell", err)
 		}
 		sellOrders = nil
 	}
@@ -143,7 +143,9 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 
 	bids, err := h.OrderRepository.FindOrdersByType(string(domain.OrderTypeBuy))
 	if err != nil {
-		log.Printf("Error fetching all orders: %v", err)
+		if err == domain.ErrNoOrdersFound {
+			return nil, fmt.Errorf("%v with type buy", err)
+		}
 		return nil, err
 	}
 	for _, bid := range bids {
@@ -152,7 +154,9 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 
 	asks, err := h.OrderRepository.FindOrdersByType(string(domain.OrderTypeSell))
 	if err != nil {
-		log.Printf("Error fetching all orders: %v", err)
+		if err == domain.ErrNoOrdersFound {
+			return nil, fmt.Errorf("%v with type sell", err)
+		}
 		return nil, err
 	}
 	for _, ask := range asks {

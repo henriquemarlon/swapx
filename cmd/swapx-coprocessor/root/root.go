@@ -91,7 +91,7 @@ func run(cmd *cobra.Command, args []string) {
 		}
 
 		if err := oh.MatchOrdersHandler(&advanceResponse); err != nil {
-			log.Println("Error handling order", err)
+			log.Println("Error handling order book", err)
 			finish.Status = "reject"
 		}
 	}

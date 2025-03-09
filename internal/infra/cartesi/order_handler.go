@@ -3,6 +3,7 @@ package cartesi
 import (
 	"encoding/hex"
 	"log"
+	"math/big"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -54,7 +55,7 @@ func (oh *MatchOrdersHandler) MatchOrdersHandler(input *coprocessor.AdvanceRespo
 	}, input.Metadata)
 	if err != nil {
 		if err == domain.ErrNoMatch {
-			log.Printf("No match found for order: %v", input.Metadata)
+			log.Println("No match found for order")
 			return nil
 		}
 		return err
@@ -64,17 +65,21 @@ func (oh *MatchOrdersHandler) MatchOrdersHandler(input *coprocessor.AdvanceRespo
 		{Type: addressType},
 		{Type: uint256Type},
 		{Type: uint256Type},
-		{Type: uint256Type},
 	}
 
 	sender := input.Metadata.MsgSender
 
 	for _, trade := range res.Trades {
-		encodedData, err := outputArgs.Pack(sender, trade.BidId, trade.AskId)
+		encodedData, err := outputArgs.Pack(
+			sender,
+			new(big.Int).SetUint64(trade.BidId-1),
+			new(big.Int).SetUint64(trade.AskId-1),
+		)
 		if err != nil {
 			return err
 		}
 		coprocessor.SendNotice(&coprocessor.NoticeRequest{Payload: "0x" + common.Bytes2Hex(encodedData)})
 	}
+	
 	return nil
 }
