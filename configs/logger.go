@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"path/filepath"
-	"runtime"
 )
 
 const ansiGreen = "\033[32m"
@@ -27,12 +25,10 @@ func (h *CustomTextHandler) Enabled(_ context.Context, lvl slog.Level) bool {
 
 func (h *CustomTextHandler) Handle(_ context.Context, r slog.Record) error {
 	levelStr := h.formatLevel(r.Level)
-	origin := h.getCallerOrigin()
 	fmt.Fprintf(
 		os.Stdout,
-		ansiGray+"["+ansiGreen+"%s"+ansiReset+"  %s"+ansiGray+"]"+ansiReset+" %s\n",
+		ansiGray+"["+ansiGreen+"%s"+ansiReset+ansiGray+"]"+ansiReset+" %s\n",
 		levelStr,
-		origin,
 		r.Message,
 	)
 	return nil
@@ -51,27 +47,14 @@ func (h *CustomTextHandler) formatLevel(lvl slog.Level) string {
 	case slog.LevelDebug:
 		return "DEBUG"
 	case slog.LevelInfo:
-		return "INFO "
+		return "INFO"
 	case slog.LevelWarn:
-		return "WARN "
+		return "WARN"
 	case slog.LevelError:
 		return "ERROR"
 	default:
-		return "LOG  "
+		return "LOG"
 	}
-}
-
-func (h *CustomTextHandler) getCallerOrigin() string {
-	for i := 5; i < 10; i++ {
-		pc, file, _, ok := runtime.Caller(i)
-		if !ok {
-			continue
-		}
-		funcName := runtime.FuncForPC(pc).Name()
-		_, filename := filepath.Split(file)
-		return fmt.Sprintf("%s::%s", filename, funcName)
-	}
-	return "unknown"
 }
 
 func ConfigureLogger(level slog.Leveler) {
