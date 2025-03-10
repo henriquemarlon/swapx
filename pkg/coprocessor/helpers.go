@@ -3,6 +3,7 @@ package coprocessor
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 )
@@ -32,6 +33,8 @@ func SendNotice(notice *NoticeRequest) (*http.Response, error) {
 	if err != nil {
 		return &http.Response{}, err
 	}
+
+	log.Printf("Sending notice: %s\n", string(body))
 
 	return SendPost("notice", body)
 }

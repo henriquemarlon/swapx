@@ -21,11 +21,19 @@ var (
 	OrderTypeSell OrderType = "sell"
 )
 
+type OrderStatus string
+
+var (
+	OrderStatusOpen              OrderStatus = "open"
+	OrderStatusFulFilledOrClosed OrderStatus = "fulfilled_or_closed"
+)
+
 type OrderRepository interface {
-	CreateOrder(order *Order) (*Order, error)
 	FindAllOrders() ([]*Order, error)
-	FindOrdersByType(orderType string) ([]*Order, error)
-	FindOrderById(orderType string, id uint64) (*Order, error)
+	CreateOrder(order *Order) (*Order, error)
+	FindOrdersByType(orderType OrderType) ([]*Order, error)
+	FindOrderById(orderType OrderType, id uint64) (*Order, error)
+	FindOrdersByTypeAndStatus(orderType OrderType, orderStatus OrderStatus) ([]*Order, error)
 }
 
 type Order struct {
@@ -34,15 +42,17 @@ type Order struct {
 	SqrtPrice *uint256.Int   `json:"sqrt_price"`
 	Amount    *uint256.Int   `json:"amount"`
 	Type      *OrderType     `json:"type"`
+	Status    *OrderStatus   `json:"status"`
 }
 
-func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, orderType *OrderType) (*Order, error) {
+func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, orderType *OrderType, orderStatus *OrderStatus) (*Order, error) {
 	order := &Order{
 		Id:        id,
 		Hook:      hook,
 		SqrtPrice: sqrtPrice,
 		Amount:    amount,
 		Type:      orderType,
+		Status:    orderStatus,
 	}
 	if err := order.Validate(); err != nil {
 		return nil, err

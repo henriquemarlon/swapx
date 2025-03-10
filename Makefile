@@ -6,7 +6,7 @@ env:
 
 .PHONY: infra
 infra:
-	@cd third_party/cartesi-coprocessor; docker compose -f docker-compose-devnet.yaml up --build
+	@cd third_party/cartesi-coprocessor; docker compose -f docker-compose-devnet.yaml --profile explorer up --build
 
 .PHONY: anvil
 anvil:
@@ -49,18 +49,22 @@ slot:
 
 .PHONY: v4
 v4:
-	@forge script ./contracts/script/V4Deployer.s.sol --broadcast \
-		--root contracts \
+	@cd contracts; forge script ./script/V4Deployer.s.sol --broadcast \
 		--rpc-url $(RPC_URL) \
 		--private-key $(PRIVATE_KEY) \
+		--verify \
+		--verifier sourcify \
+		--verifier-url http://localhost:5555 \
 		-vvvv
 
 .PHONY: hook
 hook:
-	@forge script ./contracts/script/HookDeployer.s.sol --broadcast \
-		--root contracts \
+	@cd contracts; forge script ./script/HookDeployer.s.sol --broadcast \
 		--rpc-url $(RPC_URL) \
 		--private-key $(PRIVATE_KEY) \
+		--verify \
+		--verifier sourcify \
+		--verifier-url http://localhost:5555 \
 		-vvvv
 
 .PHONY: demo
