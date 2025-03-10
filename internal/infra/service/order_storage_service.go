@@ -11,31 +11,28 @@ import (
 	"github.com/holiman/uint256"
 )
 
-var (
-	ErrNoOrdersFound = errors.New("no orders found")
-)
+var ErrNoOrdersFound = errors.New("no orders found")
 
 type OrderStorageService struct {
 	GioHandlerFactory gio.GioHandlerFactory
 }
 
 type OrderStorageServiceInterface interface {
-	FindOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error)
+	FindOrderStatus(hookAddress common.Address, orderId *big.Int, blockHash, slot common.Hash) (*bool, error)
+	FindOrdersBySlot(hookAddress common.Address, blockHash, ordersSlot, statusSlot common.Hash) ([]*domain.Order, error)
 }
 
 func NewOrderStorageService(gioHandlerFactory gio.GioHandlerFactory) *OrderStorageService {
-	return &OrderStorageService{
-		GioHandlerFactory: gioHandlerFactory,
-	}
+	return &OrderStorageService{GioHandlerFactory: gioHandlerFactory}
 }
 
-func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, blockHash, slot common.Hash) ([]*domain.Order, error) {
+func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, blockHash, ordersSlot, statusSlot common.Hash) ([]*domain.Order, error) {
 	handler, err := s.GioHandlerFactory.NewGioHandler(0x27)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := handler.Handle(blockHash, hookAddress, slot)
+	res, err := handler.Handle(blockHash, hookAddress, ordersSlot)
 	if err != nil {
 		return nil, err
 	}
@@ -46,26 +43,38 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 	}
 
 	orders := make([]*domain.Order, 0, arrayLength.Int64())
-	slotHash := crypto.Keccak256Hash(slot.Bytes())
+	slotHash := crypto.Keccak256Hash(ordersSlot.Bytes())
 
 	for i := int64(0); i < arrayLength.Int64(); i++ {
-		var orderRawData []string
+		var orderRawData [3]uint256.Int
 
 		for j := 0; j < 3; j++ {
 			data, err := handler.Handle(blockHash, hookAddress, slotHash)
 			if err != nil {
 				return nil, err
 			}
-			orderRawData = append(orderRawData, data.Response)
+
+			orderRawData[j] = *uint256.MustFromBig(new(big.Int).SetBytes(common.FromHex(data.Response)))
 			slotHash = common.BigToHash(new(big.Int).Add(new(big.Int).SetBytes(slotHash.Bytes()), big.NewInt(1)))
+		}
+
+		status, err := s.FindOrderStatus(hookAddress, big.NewInt(i), blockHash, statusSlot)
+		if err != nil {
+			return nil, err
+		}
+
+		orderStatus := domain.OrderStatusOpen
+		if *status {
+			orderStatus = domain.OrderStatusFulFilledOrClosed
 		}
 
 		order, err := domain.NewOrder(
 			uint64(i+1),
 			hookAddress,
-			uint256.MustFromBig(new(big.Int).SetBytes(common.FromHex(orderRawData[1]))),
-			uint256.MustFromBig(new(big.Int).SetBytes(common.FromHex(orderRawData[2]))),
+			&orderRawData[1],
+			&orderRawData[2],
 			nil,
+			&orderStatus,
 		)
 		if err != nil {
 			return nil, err
@@ -75,4 +84,20 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 	}
 
 	return orders, nil
+}
+
+func (s *OrderStorageService) FindOrderStatus(hookAddress common.Address, orderId *big.Int, blockHash, slot common.Hash) (*bool, error) {
+	handler, err := s.GioHandlerFactory.NewGioHandler(0x27)
+	if err != nil {
+		return nil, err
+	}
+
+	slotHash := crypto.Keccak256Hash(common.LeftPadBytes(orderId.Bytes(), 32), slot.Bytes())
+	res, err := handler.Handle(blockHash, hookAddress, slotHash)
+	if err != nil {
+		return nil, err
+	}
+
+	status := new(big.Int).SetBytes(common.FromHex(res.Response)).Cmp(big.NewInt(1)) == 0
+	return &status, nil
 }

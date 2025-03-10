@@ -25,7 +25,7 @@ func (r *OrderRepositoryInMemory) CreateOrder(order *domain.Order) (*domain.Orde
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
 
-	orderMap := r.getOrderMap((*string)(order.Type))
+	orderMap := r.getOrderMap((*domain.OrderType)(order.Type))
 	if _, exists := orderMap[order.Id]; exists {
 		return nil, domain.ErrOrderAlreadyExists
 	}
@@ -52,7 +52,7 @@ func (r *OrderRepositoryInMemory) FindAllOrders() ([]*domain.Order, error) {
 	return orders, nil
 }
 
-func (r *OrderRepositoryInMemory) FindOrderById(orderType string, id uint64) (*domain.Order, error) {
+func (r *OrderRepositoryInMemory) FindOrderById(orderType domain.OrderType, id uint64) (*domain.Order, error) {
 	r.Mutex.RLock()
 	defer r.Mutex.RUnlock()
 
@@ -64,7 +64,7 @@ func (r *OrderRepositoryInMemory) FindOrderById(orderType string, id uint64) (*d
 	return order, nil
 }
 
-func (r *OrderRepositoryInMemory) FindOrdersByType(orderType string) ([]*domain.Order, error) {
+func (r *OrderRepositoryInMemory) FindOrdersByType(orderType domain.OrderType) ([]*domain.Order, error) {
 	r.Mutex.RLock()
 	defer r.Mutex.RUnlock()
 
@@ -80,8 +80,26 @@ func (r *OrderRepositoryInMemory) FindOrdersByType(orderType string) ([]*domain.
 	return orders, nil
 }
 
-func (r *OrderRepositoryInMemory) getOrderMap(orderType *string) map[uint64]*domain.Order {
-	if *orderType == string(domain.OrderTypeBuy) {
+func (r *OrderRepositoryInMemory) FindOrdersByTypeAndStatus(orderType domain.OrderType, orderStatus domain.OrderStatus) ([]*domain.Order, error) {
+	r.Mutex.RLock()
+	defer r.Mutex.RUnlock()
+
+	orderMap := r.getOrderMap(&orderType)
+	var orders []*domain.Order
+	for _, order := range orderMap {
+		if *order.Status == orderStatus {
+			orders = append(orders, order)
+		}
+	}
+
+	if len(orders) == 0 {
+		return nil, domain.ErrNoOrdersFound
+	}
+	return orders, nil
+}
+
+func (r *OrderRepositoryInMemory) getOrderMap(orderType *domain.OrderType) map[uint64]*domain.Order {
+	if *orderType == domain.OrderTypeBuy {
 		return r.BuyOrders
 	}
 	return r.SellOrders

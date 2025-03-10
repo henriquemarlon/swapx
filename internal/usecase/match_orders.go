@@ -13,8 +13,10 @@ import (
 )
 
 const (
-	BUY_ORDERS_STORAGE_SLOT  = 8
-	SELL_ORDERS_STORAGE_SLOT = 9
+	BUY_ORDERS_STORAGE_SLOT         = 8
+	SELL_ORDERS_STORAGE_SLOT        = 9
+	BUY_ORDERS_STATUS_STORAGE_SLOT  = 6
+	SELL_ORDERS_STATUS_STORAGE_SLOT = 7
 )
 
 type MatchOrdersUseCase struct {
@@ -84,6 +86,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		uint256.MustFromBig(price),
 		uint256.MustFromBig(quantity),
 		&orderType,
+		&domain.OrderStatusOpen,
 	)
 	if err != nil {
 		return nil, err
@@ -101,6 +104,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		metadata.MsgSender,
 		common.HexToHash(metadata.BlockHash),
 		common.BigToHash(big.NewInt(BUY_ORDERS_STORAGE_SLOT)),
+		common.BigToHash(big.NewInt(BUY_ORDERS_STATUS_STORAGE_SLOT)),
 	)
 	if err != nil {
 		if err == domain.ErrNoOrdersFound {
@@ -120,6 +124,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		metadata.MsgSender,
 		common.HexToHash(metadata.BlockHash),
 		common.BigToHash(big.NewInt(SELL_ORDERS_STORAGE_SLOT)),
+		common.BigToHash(big.NewInt(SELL_ORDERS_STATUS_STORAGE_SLOT)),
 	)
 	if err != nil {
 		if err == domain.ErrNoOrdersFound {
@@ -141,7 +146,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 
 	orderBook := domain.NewOrderBook()
 
-	bids, err := h.OrderRepository.FindOrdersByType(string(domain.OrderTypeBuy))
+	bids, err := h.OrderRepository.FindOrdersByTypeAndStatus(domain.OrderTypeBuy, domain.OrderStatusOpen)
 	if err != nil {
 		if err == domain.ErrNoOrdersFound {
 			return nil, fmt.Errorf("%v with type buy", err)
@@ -152,7 +157,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		orderBook.Bids.Push(bid)
 	}
 
-	asks, err := h.OrderRepository.FindOrdersByType(string(domain.OrderTypeSell))
+	asks, err := h.OrderRepository.FindOrdersByTypeAndStatus(domain.OrderTypeSell, domain.OrderStatusOpen)
 	if err != nil {
 		if err == domain.ErrNoOrdersFound {
 			return nil, fmt.Errorf("%v with type sell", err)

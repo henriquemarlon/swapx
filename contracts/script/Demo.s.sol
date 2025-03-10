@@ -99,12 +99,9 @@ contract Demo is Script {
             PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
 
         vm.startBroadcast();
-
         swapRouter.swap(key, buySwapParams, testSettings, abi.encode(1000000000000000000, msg.sender));
 
-        vm.roll(block.number + 1);
         swapRouter.swap(key, sellSwapParams, testSettings, abi.encode(1000000000000000000, msg.sender));
-
         vm.stopBroadcast();
     }
 
