@@ -41,22 +41,22 @@ func run(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalf("Error: could not setup in-memory DB: %v", err)
 	}
-	log.Println("In-memory database initialized")
+	slog.Info("In-memory database initialized")
 
 	oh, err := NewMatchOrdersHandler(db, ROLLUP_HTTP_SERVER_URL)
 	if err != nil {
 		log.Fatalf("Failed to initialize OrderHandler: %v", err)
 	}
-	log.Println("Order handler initialized")
+	slog.Info("Order handler initialized")
 
 	for {
-		log.Println("Sending finish request")
+		slog.Info("Sending finish request")
 		finish := coprocessor.FinishRequest{Status: "accept"}
 		res, err := coprocessor.SendFinish(&finish)
 		if err != nil {
 			log.Fatalf("Error: making HTTP request: %v", err)
 		}
-		log.Println("Received finish status", strconv.Itoa(res.StatusCode))
+		slog.Info("Received finish status", strconv.Itoa(res.StatusCode), res.Body)
 
 		if res.StatusCode == 202 {
 			log.Println("No pending rollup request, retrying...")

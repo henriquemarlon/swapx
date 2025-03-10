@@ -81,7 +81,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 	}
 
 	order, err := domain.NewOrder(
-		index.Uint64(),
+		index.Uint64(), // The index here comes from the order array length at the time of the swap call, which is (orderIndex + 1).
 		metadata.MsgSender,
 		uint256.MustFromBig(price),
 		uint256.MustFromBig(quantity),

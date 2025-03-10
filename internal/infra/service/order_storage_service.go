@@ -69,7 +69,7 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 		}
 
 		order, err := domain.NewOrder(
-			uint64(i+1),
+			uint64(i+1), // the index inside of the dApp is 1-based index, instead of 0-based index from the blockchain
 			hookAddress,
 			&orderRawData[1],
 			&orderRawData[2],
