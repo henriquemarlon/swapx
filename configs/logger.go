@@ -25,12 +25,19 @@ func (h *CustomTextHandler) Enabled(_ context.Context, lvl slog.Level) bool {
 
 func (h *CustomTextHandler) Handle(_ context.Context, r slog.Record) error {
 	levelStr := h.formatLevel(r.Level)
-	fmt.Fprintf(
-		os.Stdout,
-		ansiGray+"["+ansiGreen+"%s"+ansiReset+ansiGray+"]"+ansiReset+" %s\n",
+
+	msg := fmt.Sprintf(
+		ansiGray+"["+ansiGreen+"%s"+ansiReset+ansiGray+"]"+ansiReset+" %s",
 		levelStr,
 		r.Message,
 	)
+
+	r.Attrs(func(a slog.Attr) bool {
+		msg += fmt.Sprintf(" %s=%v", a.Key, a.Value)
+		return true
+	})
+
+	fmt.Fprintln(os.Stdout, msg)
 	return nil
 }
 

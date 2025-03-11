@@ -1,8 +1,10 @@
 package usecase
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -167,6 +169,17 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 	for _, ask := range asks {
 		orderBook.Asks.Push(ask)
 	}
+
+	orders, err := h.OrderRepository.FindAllOrders()
+	if err != nil {
+		return nil, err
+	}
+
+	allOrders, err := json.Marshal(orders)
+	if err != nil {
+		return nil, err
+	}
+	slog.Info("Current state before match", "info", string(allOrders))
 
 	trades, err := orderBook.MatchOrders()
 	if err != nil {

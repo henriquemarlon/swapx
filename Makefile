@@ -73,4 +73,5 @@ demo:
 		--root contracts \
 		--rpc-url $(RPC_URL) \
 		--private-key $(PRIVATE_KEY) \
+		--slow \
 		-vvvv
