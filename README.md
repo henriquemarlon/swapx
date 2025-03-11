@@ -37,8 +37,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 [Link-deck]: https://cartesi.io
 
 ### Architecture
-![image](https://github.com/user-attachments/assets/78551e51-99f1-4d0c-9e99-fa781695b3dd)
-
+![image](https://github.com/user-attachments/assets/8974e20e-49c3-470b-921c-e5abf45234f3)
 
 > 1 - The [`SwapXHook.sol`](https://github.com/henriquemarlon/swapx/blob/main/contracts/src/SwapXHook.sol) implementation is a Uniswap hook based on [`AsyncSwap`](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap). Instead of executing the swap at the market price, it implements a custom logic for [**limit orders**](https://www.investopedia.com/terms/l/limitorder.asp):
 >
