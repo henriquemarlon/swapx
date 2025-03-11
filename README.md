@@ -16,7 +16,7 @@
 </p>
 
 > [!CAUTION]
-> This is an experimental project under continuous development and should be treated as such. **Its use in production/mainnet is not recommended.**
+> This is an experimental project under continuous development and should be treated as such. **Its use in production/mainnet is not recommended.** Learn about the known limitations of the application by accessing [DISCLAIMER](./DISCLAIMER.md).
 
 ##  Table of Contents
 - [Overview](#overview)
@@ -28,10 +28,13 @@
 ### Overview
 WIP
 
-[![Docs]][Link-docs]
+[![Docs]][Link-docs] [![Deck]][Link-deck]
 	
 [Docs]: https://img.shields.io/badge/Documentation-6FE1E5?style=for-the-badge
 [Link-docs]: https://cartesi.io
+
+[Deck]: https://img.shields.io/badge/Deck-868380?style=for-the-badge
+[Link-deck]: https://cartesi.io
 
 ### Architecture
 WIP
@@ -89,9 +92,9 @@ cartesi-coprocessor publish --network devnet
 make v4
 ```
 
-3.1 Deploy `SwapXHook.sol` and `SwapXTaskManager.sol`:
+3.2 Deploy `SwapXHook.sol` and `SwapXTaskManager.sol`:
 
-> [!WARNING]
+> [!NOTE]
 > The following step requires some extra information provided by the command bellow:
 > ```bash
 > cartesi-coprocessor address-book
@@ -139,6 +142,7 @@ make demo
 > | 3      | Ask Fully Matched by Multiple Bids              | An ask order is completely matched by a combination of multiple bid orders.                                |
 > | 4      | Ask Partially Matched but Bid Fully Fulfilled   | An ask order is only partially filled, while the bid order is fully satisfied.                             |
 >
-> You can see even more details by accessing the logs tab of one of these transactions, and you'll come across something like this:
->
-> ![logs](https://github.com/user-attachments/assets/d2161550-aa96-41b2-bb13-0e5ebe457ea3)
+
+You can see even more details by accessing the logs tab of one of these transactions, and you'll come across something like this:
+
+![logs](https://github.com/user-attachments/assets/d2161550-aa96-41b2-bb13-0e5ebe457ea3)
