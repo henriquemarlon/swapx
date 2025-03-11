@@ -26,7 +26,7 @@
 - [Interacting](#interacting)
 
 ### Overview
-WIP
+SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the traditional AMM logic with an asynchronous swap system and limit orders. Leveraging EigenLayer's cryptoeconomic security on top of the Cartesi Coprocessor SDK, it enables swaps to be scheduled, optimized, and auditable, ensuring greater liquidity efficiency and reducing trader uncertainty. This approach eliminates the need for immediate execution, allowing for more sophisticated and flexible strategies for market makers, liquidity protocols, and derivatives.
 
 [![Docs]][Link-docs] [![Deck]][Link-deck]
 	
