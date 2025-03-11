@@ -63,15 +63,15 @@ WIP
 
 1. Start the devnet coprocessor infrastructure:
 
-```bash
-make infra
-```
+   ```bash
+   make infra
+   ```
 
 2. Build and Publish the application:
 
-```sh
-cartesi-coprocessor publish --network devnet
-```
+   ```sh
+   cartesi-coprocessor publish --network devnet
+   ```
 
 3. Deploy [UniswapV4](https://docs.uniswap.org/contracts/v4/overview) contracts, `SwapXHook.sol` and `SwapXTaskManager.sol` contracts:
 
@@ -88,9 +88,9 @@ cartesi-coprocessor publish --network devnet
 
 3.1 Deploy UniswapV4 contracts:
    
-```sh
-make v4
-```
+   ```sh
+   make v4
+   ```
 
 3.2 Deploy `SwapXHook.sol` and `SwapXTaskManager.sol`:
 
@@ -107,29 +107,29 @@ make v4
 > payment_token        0xc5a5C42992dECbae36851359345FE25997F5C42d
 > ```
 
-```bash
-make hook
-```
+   ```bash
+   make hook
+   ```
 
-Output sample:
+   Output sample:
 
-```bash
-[⠊] Compiling...
-No files changed, compilation skipped
-Enter Coprocessor address: <Devnet_task_issuer>
-Enter Machine Hash: <Machine Hash>
-```
+   ```bash
+   [⠊] Compiling...
+   No files changed, compilation skipped
+   Enter Coprocessor address: <Devnet_task_issuer>
+   Enter Machine Hash: <Machine Hash>
+   ```
 
 ### Interacting
 
 <div align="justify">
-If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing http://localhost:5100 will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. (Hint: To identify the address of the deployed SwapXHook.sol instance, simply access `broadcast/31337/HookDeployer.sol/run-latest.json` and look for the address.) After that, just search for the contract using that address on Otterscan. Then, follow the instructions below.
+If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing http://localhost:5100 will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. After that, just search for the contract using that address on Otterscan. Then, follow the instructions below. Hint: To identify the address of the deployed SwapXHook.sol instance, simply access "broadcast/31337/HookDeployer.sol/run-latest.json" and look for the address.
 </div>
 <br>
 
-```bash
-make demo
-```
+   ```bash
+   make demo
+   ```
 
 > [!IMPORTANT]
 > You should observe, after a while, five calls targeting the signature method 0x7417ccfb, each covering one of the following scenarios:
