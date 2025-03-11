@@ -122,7 +122,7 @@ WIP
 
 ### Interacting
 
-If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing [http://localhost:5100](http://localhost:5100) will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. After that, just search for the contract using that address on Otterscan. Hint: To identify the address of the deployed SwapXHook.sol instance, simply access `contracts/broadcast/31337/HookDeployer.sol/run-latest.json` directory and look for the address. Then, follow the instructions below:
+If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing [http://localhost:5100](http://localhost:5100) will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. After that, just search for the contract using that address on Otterscan. Then, follow the instructions below:
 
 ```bash
 make demo
