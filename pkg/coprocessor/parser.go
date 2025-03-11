@@ -3,7 +3,7 @@ package coprocessor
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"math/big"
 	"strings"
 
@@ -76,7 +76,7 @@ func EvmAdvanceParser(hexInput string) (AdvanceResponse, error) {
 	if err != nil {
 		return response, fmt.Errorf("error marshaling response: %v", err)
 	}
-	log.Printf("Advance response: %s", string(jsonBytes))
+	slog.Info("Advance response: %s", "info", string(jsonBytes))
 
 	return response, nil
 }

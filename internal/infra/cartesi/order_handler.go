@@ -2,7 +2,7 @@ package cartesi
 
 import (
 	"encoding/hex"
-	"log"
+	"log/slog"
 	"math/big"
 	"strings"
 
@@ -55,7 +55,7 @@ func (oh *MatchOrdersHandler) MatchOrdersHandler(input *coprocessor.AdvanceRespo
 	}, input.Metadata)
 	if err != nil {
 		if err == domain.ErrNoMatch {
-			log.Println("No match found for order")
+			slog.Info("No match found for order")
 			return nil
 		}
 		return err

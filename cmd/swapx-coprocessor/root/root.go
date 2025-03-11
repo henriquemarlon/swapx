@@ -3,7 +3,6 @@ package root
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"log/slog"
 	"os"
 	"strconv"
@@ -39,59 +38,59 @@ func init() {
 func run(cmd *cobra.Command, args []string) {
 	db, err := configs.SetupInMemoryDB()
 	if err != nil {
-		log.Fatalf("Error: could not setup in-memory DB: %v", err)
+		slog.Error("Error: could not setup in-memory DB", "err", err)
 	}
-	log.Println("In-memory database initialized")
+	slog.Info("In-memory database initialized")
 
 	oh, err := NewMatchOrdersHandler(db, ROLLUP_HTTP_SERVER_URL)
 	if err != nil {
-		log.Fatalf("Failed to initialize OrderHandler: %v", err)
+		slog.Error("Failed to initialize OrderHandler: %v", "err", err)
 	}
-	log.Println("Order handler initialized")
+	slog.Info("Order handler initialized")
 
 	for {
-		log.Println("Sending finish request")
+		slog.Info("Sending finish request")
 		finish := coprocessor.FinishRequest{Status: "accept"}
 		res, err := coprocessor.SendFinish(&finish)
 		if err != nil {
-			log.Fatalf("Error: making HTTP request: %v", err)
+			slog.Error("Error: making HTTP request: %v", "err", err)
 		}
-		log.Println("Received finish status", strconv.Itoa(res.StatusCode))
+		slog.Info("Received finish status", strconv.Itoa(res.StatusCode), res.Body)
 
 		if res.StatusCode == 202 {
-			log.Println("No pending rollup request, retrying...")
+			slog.Info("No pending rollup request, retrying...")
 			time.Sleep(1 * time.Second)
 			continue
 		}
 
 		resBody, err := io.ReadAll(res.Body)
 		if err != nil {
-			log.Fatalf("Error: could not read response body: %v", err)
+			slog.Error("Error: could not read response body: %v", "err", err)
 		}
 
 		var finishResponse coprocessor.FinishResponse
 		if err := json.Unmarshal(resBody, &finishResponse); err != nil {
-			log.Fatalf("Error: unmarshaling response body: %v", err)
+			slog.Error("Error: unmarshaling response body: %v", "err", err)
 		}
 
 		var rawPayload struct {
 			Data string `json:"payload"`
 		}
 		if err := json.Unmarshal(finishResponse.Data, &rawPayload); err != nil {
-			log.Println("Error unmarshaling payload", err)
+			slog.Error("Error unmarshaling payload", "err", err)
 			finish.Status = "reject"
 			continue
 		}
 
 		advanceResponse, err := coprocessor.EvmAdvanceParser(rawPayload.Data)
 		if err != nil {
-			log.Println("Error parsing advance response", err)
+			slog.Error("Error parsing advance response", "err", err)
 			finish.Status = "reject"
 			continue
 		}
 
 		if err := oh.MatchOrdersHandler(&advanceResponse); err != nil {
-			log.Println("Error handling order book", err)
+			slog.Error("Error handling order book", "err", err)
 			finish.Status = "reject"
 		}
 	}
