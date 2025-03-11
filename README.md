@@ -37,7 +37,8 @@ WIP
 [Link-deck]: https://cartesi.io
 
 ### Architecture
-WIP
+![image](https://github.com/user-attachments/assets/4a62e02a-f56c-4072-a03e-d78fd0470ede)
+
 
 ###  Prerequisites
 
