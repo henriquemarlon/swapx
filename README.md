@@ -16,7 +16,7 @@
 </p>
 
 > [!CAUTION]
-> This is an experimental project under continuous development and should be treated as such. **Its use in production/mainnet is not recommended.** Learn about the known limitations of the application by accessing [DISCLAIMER](./DISCLAIMER.md).
+> This is an experimental project under continuous development and should be treated as such. **Its use in production/mainnet is not recommended.** Learn about the known limitations of the application by accessing: [DISCLAIMER](./DISCLAIMER.md).
 
 ##  Table of Contents
 - [Overview](#overview)
