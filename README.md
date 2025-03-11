@@ -86,13 +86,13 @@ WIP
 > PRIVATE_KEY=0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
 > ```
 
-3.1 Deploy UniswapV4 contracts:
+- 3.1 Deploy UniswapV4 contracts:
    
    ```sh
    make v4
    ```
 
-3.2 Deploy `SwapXHook.sol` and `SwapXTaskManager.sol`:
+- 3.2 Deploy `SwapXHook.sol` and `SwapXTaskManager.sol`:
 
 > [!NOTE]
 > The following step requires some extra information provided by the command bellow:
@@ -107,23 +107,23 @@ WIP
 > payment_token        0xc5a5C42992dECbae36851359345FE25997F5C42d
 > ```
 
-   ```bash
-   make hook
-   ```
-
-   Output sample:
-
-   ```bash
-   [⠊] Compiling...
-   No files changed, compilation skipped
-   Enter Coprocessor address: <Devnet_task_issuer>
-   Enter Machine Hash: <Machine Hash>
-   ```
+>   ```bash
+>  make hook
+>   ```
+>
+>  Output sample:
+>
+> ```bash
+>  [⠊] Compiling...
+>  No files changed, compilation skipped
+>  Enter Coprocessor address: <Devnet_task_issuer>
+>  Enter Machine Hash: <Machine Hash>
+>  ```
 
 ### Interacting
 
 <div align="justify">
-If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing http://localhost:5100 will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. After that, just search for the contract using that address on Otterscan. Then, follow the instructions below. Hint: To identify the address of the deployed SwapXHook.sol instance, simply access "broadcast/31337/HookDeployer.sol/run-latest.json" and look for the address.
+If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing http://localhost:5100 will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. After that, just search for the contract using that address on Otterscan. Hint: To identify the address of the deployed SwapXHook.sol instance, simply access "contracts/broadcast/31337/HookDeployer.sol/run-latest.json" directory and look for the address. Then, follow the instructions below:
 </div>
 <br>
 
