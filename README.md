@@ -78,9 +78,9 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 > [!WARNING]
 > Before running the command below, make sure that the variable `ETHEREUM_ENDPOINT: http://anvil:8545` is set in the environment of the **operator service** inside the [**docker-compose-devnet.yaml**](./third_party/cartesi-coprocessor/docker-compose-devnet.yaml) file.
 
-   ```bash
-   make infra
-   ```
+>   ```bash
+>   make infra
+>   ```
 
 2. Build and Publish the application:
 
