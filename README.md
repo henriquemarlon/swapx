@@ -45,7 +45,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 >   - The user can cancel the order and receive the funds back;
 >   - When an order is created, a task is issued to the SwapX order book, which will efficiently and intelligently match orders, including aggregating multiple orders and ensuring that the best orders are matched with the incoming order.
 
-> 2 - The assets in this case are token contracts that will be transacted in the swap between users through the pool and contracts that are part of the [**UniswapV4 SDK**](https://docs.uniswap.org/contracts/v4/overview).
+> 2 - The **Assets** in this case are token contracts that will be transacted in the swap between users through the pool and contracts that are part of the [**UniswapV4 SDK**](https://docs.uniswap.org/contracts/v4/overview).
 
 > 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations with guarantees of the computation performed, while also having [**"skin in the game"**](https://docs.eigenlayer.xyz/eigenlayer/concepts/slashing/slashing-concept) through slashing penalties in case of malicious behavior.
 
