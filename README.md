@@ -72,24 +72,21 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 4. [Install the Cartesi Coprocessor CLI](https://docs.mugen.builders/cartesi-co-processor-tutorial/installation)
 
 ###  Running
+> [!WARNING]
+> Before the following step, make sure that the variable `ETHEREUM_ENDPOINT: http://anvil:8545` is set in the environment of the **operator service** inside the [**./third_party/cartesi-coprocessor/docker-compose-devnet.yaml**](./third_party/cartesi-coprocessor/docker-compose-devnet.yaml) file.
 
 1. Start the devnet coprocessor infrastructure:
 
-> [!WARNING]
-> Before running the command below, make sure that the variable `ETHEREUM_ENDPOINT: http://anvil:8545` is set in the environment of the **operator service** inside the [**./third_party/cartesi-coprocessor/docker-compose-devnet.yaml**](./third_party/cartesi-coprocessor/docker-compose-devnet.yaml) file.
-
->   ```bash
->   make infra
->   ```
+   ```bash
+   make infra
+   ```
 
 2. Build and Publish the application:
 
    ```sh
    cartesi-coprocessor publish --network devnet
    ```
-
-3. Deploy [UniswapV4](https://docs.uniswap.org/contracts/v4/overview) contracts, `SwapXHook.sol` and `SwapXTaskManager.sol` contracts:
-
+   
 > [!WARNING]
 > Before deploy, create a `.env` with the command bellow:
 > ```bash
@@ -99,15 +96,15 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 > ```env
 > RPC_URL=http://localhost:8545
 > PRIVATE_KEY=0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
-> ```
+> ``
+
+3. Deploy [UniswapV4](https://docs.uniswap.org/contracts/v4/overview) contracts, `SwapXHook.sol` and `SwapXTaskManager.sol` contracts:`
 
 - 3.1 Deploy UniswapV4 contracts:
    
    ```sh
    make v4
    ```
-
-- 3.2 Deploy `SwapXHook.sol` and `SwapXTaskManager.sol`:
 
 > [!NOTE]
 > The following step requires some extra information provided by the command bellow:
@@ -122,18 +119,20 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 > payment_token        0xc5a5C42992dECbae36851359345FE25997F5C42d
 > ```
 
->   ```bash
->  make hook
->   ```
->
->  Output sample:
->
-> ```bash
->  [⠊] Compiling...
->  No files changed, compilation skipped
->  Enter Coprocessor address: <Devnet_task_issuer>
->  Enter Machine Hash: <Machine Hash>
->  ```
+- 3.2 Deploy `SwapXHook.sol` and `SwapXTaskManager.sol`:
+
+   ```bash
+   make hook
+   ```
+
+   Output sample:
+
+  ```bash
+   [⠊] Compiling...
+   No files changed, compilation skipped
+   Enter Coprocessor address: <Devnet_task_issuer>
+   Enter Machine Hash: <Machine Hash>
+  ```
 
 ### Interacting
 
