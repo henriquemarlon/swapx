@@ -29,13 +29,8 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         address account;
         uint256 sqrtPrice;
         uint256 amount;
+        uint256 matchedAmount;
     }
-
-    // Buy order -> zeroForOne == true (deposits currency0, withdraws currency1)
-    // Sell order -> zeroForOne == false (deposits currency1, withdraws currency0)
-
-    mapping(uint256 => bool) public buyOrderFulfilledOrCancelled; // buyOrderId => isFulfilled (buy = zeroForOne == true)
-    mapping(uint256 => bool) public sellOrderFulfilledOrCancelled; // sellOrderId => isFulfilled (sell = zeroForOne == false)
 
     Order[] public buyOrders; // (buy = zeroForOne == true)
     Order[] public sellOrders; // (sell = zeroForOne == false)
@@ -155,18 +150,18 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
         currency0.transfer(sellOrder.account, tradeAmount);
 
         if (tradeAmount == buyOrder.amount) {
-            buyOrderFulfilledOrCancelled[buyOrderId] = true;
+            buyOrder.matchedAmount += tradeAmount;
             emit BuyOrderFulfilled(buyOrderId, buyOrder.account, buyOrder.sqrtPrice, tradeAmount);
         } else {
-            buyOrder.amount -= tradeAmount;
+            buyOrder.matchedAmount += tradeAmount;
             emit BuyOrderPartiallyFulfilled(buyOrderId, buyOrder.account, buyOrder.sqrtPrice, tradeAmount);
         }
 
         if (tradeAmount == sellOrder.amount) {
-            sellOrderFulfilledOrCancelled[sellOrderId] = true;
+            sellOrder.matchedAmount += tradeAmount;
             emit SellOrderFulfilled(sellOrderId, sellOrder.account, sellOrder.sqrtPrice, tradeAmount);
         } else {
-            sellOrder.amount -= tradeAmount;
+            sellOrder.matchedAmount += tradeAmount;
             emit SellOrderPartiallyFulfilled(sellOrderId, sellOrder.account, sellOrder.sqrtPrice, tradeAmount);
         }
     }
