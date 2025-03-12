@@ -26,7 +26,7 @@
 - [Interacting](#interacting)
 
 ### Overview
-SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the traditional AMM logic with an asynchronous swap system and limit orders. Leveraging EigenLayer's cryptoeconomic security on top of the Cartesi Coprocessor, it enables swaps to be scheduled, optimized, and auditable, ensuring greater liquidity efficiency and reducing trader uncertainty. This approach eliminates the need for immediate execution, allowing for more sophisticated and flexible strategies for market makers, liquidity protocols, and derivatives.
+SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the traditional AMM logic with an asynchronous swap system and limit orders. Leveraging EigenLayer's cryptoeconomic security through the Cartesi Coprocessor, it enables swaps to be scheduled, optimized, and auditable, ensuring greater liquidity efficiency and reducing trader uncertainty. This approach eliminates the need for immediate execution, allowing for more sophisticated and flexible strategies for market makers, liquidity protocols, and derivatives.
 
 [![Docs]][Link-docs] [![Deck]][Link-deck]
 	
@@ -39,7 +39,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 ### Architecture
 ![image](https://github.com/user-attachments/assets/8974e20e-49c3-470b-921c-e5abf45234f3)
 
-> 1 - The [`SwapXHook.sol`](https://github.com/henriquemarlon/swapx/blob/main/contracts/src/SwapXHook.sol) implementation is a Uniswap hook based on [`AsyncSwap`](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap). Instead of executing the swap at the market price, it implements a custom logic for [**limit orders**](https://www.investopedia.com/terms/l/limitorder.asp):
+> 1 - The [`SwapXHook.sol`](https://github.com/henriquemarlon/swapx/blob/main/contracts/src/SwapXHook.sol) implementation is a Uniswap hook based on AsyncSwap[^1]. Instead of executing the swap at the market price, it implements a custom logic for [**limit orders**](https://www.investopedia.com/terms/l/limitorder.asp):
 >
 >   - The order value is transferred to the hook upon creation;
 >   - The user can cancel the order and receive the funds back;
@@ -47,9 +47,9 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 
 > 2 - The assets in this case are token contracts that will be transacted in the swap between users through the pool and contracts that are part of the [**UniswapV4 SDK**](https://docs.uniswap.org/contracts/v4/overview).
 
-> 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations **on behalf of the application** with guarantees of the computation performed, while also having [**"skin in the game"**](https://docs.eigenlayer.xyz/eigenlayer/concepts/slashing/slashing-concept) through slashing penalties in case of malicious behavior.
+> 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations with guarantees of the computation performed, while also having [**"skin in the game"**](https://docs.eigenlayer.xyz/eigenlayer/concepts/slashing/slashing-concept) through slashing penalties in case of malicious behavior.
 
-> 4 - The **Cartesi Coprocessor** is the framework that enables the creation of **EVM Linux-powered coprocessors**, leveraging the runtime provided by the **Cartesi Machine**. To learn more, visit: https://docs.mugen.builders/cartesi-co-processor-tutorial/introduction.
+> 4 - The **Cartesi Coprocessor** is an EigenLayer AVS with a network of operators, leveraging the runtime provided by the **Cartesi Machine**. To learn more, visit: https://docs.mugen.builders/cartesi-co-processor-tutorial/introduction.
 
 ###  Prerequisites
 
@@ -88,7 +88,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
    ```
    
 > [!WARNING]
-> Before deploy, create a `.env` with the command bellow:
+> Before the next step, create a `.env` with the command bellow:
 > ```bash
 > make env
 > ```
@@ -136,7 +136,9 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 
 ### Interacting
 
-If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing [http://localhost:5100](http://localhost:5100) will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. After that, just search for the contract using that address on Otterscan. Then, follow the instructions below:
+If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing [http://localhost:5100](http://localhost:5100) will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via AsyncSwap[^1]. After that, just search for the contract using that address on Otterscan. Then, follow the instructions below:
+
+[^1]: You can see [here](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap#Configure-a-AsyncSwap-Hook) the reference for enabling the AsyncSwap in a UniswapV4 hook, and [here](https://github.com/henriquemarlon/swapx/blob/demo/contracts/src/SwapXHook.sol#L109) is where it was defined within the application.
 
 ```bash
 make demo
