@@ -37,22 +37,24 @@ type OrderRepository interface {
 }
 
 type Order struct {
-	Id        uint64         `json:"id"`
-	Hook      common.Address `json:"hook"`
-	SqrtPrice *uint256.Int   `json:"sqrt_price"`
-	Amount    *uint256.Int   `json:"amount"`
-	Type      *OrderType     `json:"type"`
-	Status    *OrderStatus   `json:"status"`
+	Id            uint64         `json:"id"`
+	Hook          common.Address `json:"hook"`
+	SqrtPrice     *uint256.Int   `json:"sqrt_price"`
+	Amount        *uint256.Int   `json:"amount"`
+	MatchedAmount *uint256.Int   `json:"matched_amount"`
+	Type          *OrderType     `json:"type"`
+	Status        *OrderStatus   `json:"status"`
 }
 
-func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, orderType *OrderType, orderStatus *OrderStatus) (*Order, error) {
+func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, matchedAmount *uint256.Int, orderType *OrderType, orderStatus *OrderStatus) (*Order, error) {
 	order := &Order{
-		Id:        id,
-		Hook:      hook,
-		SqrtPrice: sqrtPrice,
-		Amount:    amount,
-		Type:      orderType,
-		Status:    orderStatus,
+		Id:            id,
+		Hook:          hook,
+		SqrtPrice:     sqrtPrice,
+		Amount:        amount,
+		MatchedAmount: matchedAmount,
+		Type:          orderType,
+		Status:        orderStatus,
 	}
 	if err := order.Validate(); err != nil {
 		return nil, err
@@ -61,7 +63,7 @@ func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, or
 }
 
 func (o *Order) Validate() error {
-	if o.Id == 0 || o.Hook == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 {
+	if o.Id == 0 || o.Hook == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 || o.MatchedAmount.Sign() == 0 {
 		return ErrInvalidOrder
 	}
 	return nil

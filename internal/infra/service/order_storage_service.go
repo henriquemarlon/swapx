@@ -46,7 +46,7 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 	slotHash := crypto.Keccak256Hash(ordersSlot.Bytes())
 
 	for i := int64(0); i < arrayLength.Int64(); i++ {
-		var orderRawData [3]uint256.Int
+		var orderRawData [4]uint256.Int
 
 		for j := 0; j < 3; j++ {
 			data, err := handler.Handle(blockHash, hookAddress, slotHash)
@@ -58,13 +58,15 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 			slotHash = common.BigToHash(new(big.Int).Add(new(big.Int).SetBytes(slotHash.Bytes()), big.NewInt(1)))
 		}
 
-		status, err := s.FindOrderStatus(hookAddress, big.NewInt(i), blockHash, statusSlot)
+		isCancelled, err := s.FindOrderStatus(hookAddress, big.NewInt(i), blockHash, statusSlot)
 		if err != nil {
 			return nil, err
 		}
 
+		isFulfilled := new(uint256.Int).Sub(&orderRawData[2], &orderRawData[3]).IsZero()
+
 		orderStatus := domain.OrderStatusOpen
-		if *status {
+		if *isCancelled || isFulfilled {
 			orderStatus = domain.OrderStatusFulFilledOrClosed
 		}
 
@@ -73,6 +75,7 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 			hookAddress,
 			&orderRawData[1],
 			&orderRawData[2],
+			&orderRawData[3],
 			nil,
 			&orderStatus,
 		)

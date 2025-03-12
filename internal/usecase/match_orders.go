@@ -16,8 +16,8 @@ import (
 
 const (
 	BUY_ORDERS_STORAGE_SLOT         = 8
-	SELL_ORDERS_STORAGE_SLOT        = 9
 	BUY_ORDERS_STATUS_STORAGE_SLOT  = 6
+	SELL_ORDERS_STORAGE_SLOT        = 9
 	SELL_ORDERS_STATUS_STORAGE_SLOT = 7
 )
 
@@ -87,6 +87,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		metadata.MsgSender,
 		uint256.MustFromBig(price),
 		uint256.MustFromBig(quantity),
+		uint256.MustFromBig(big.NewInt(0)),
 		&orderType,
 		&domain.OrderStatusOpen,
 	)
