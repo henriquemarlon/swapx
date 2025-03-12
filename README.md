@@ -39,7 +39,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 ### Architecture
 ![image](https://github.com/user-attachments/assets/8974e20e-49c3-470b-921c-e5abf45234f3)
 
-> 1 - The [`SwapXHook.sol`](https://github.com/henriquemarlon/swapx/blob/main/contracts/src/SwapXHook.sol) implementation is a Uniswap hook based on [`AsyncSwap`](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap). Instead of executing the swap at the market price, it implements a custom logic for [**limit orders**](https://www.investopedia.com/terms/l/limitorder.asp):
+> 1 - The [`SwapXHook.sol`](https://github.com/henriquemarlon/swapx/blob/main/contracts/src/SwapXHook.sol) implementation is a Uniswap hook based on AsyncSwap[^1]. Instead of executing the swap at the market price, it implements a custom logic for [**limit orders**](https://www.investopedia.com/terms/l/limitorder.asp):
 >
 >   - The order value is transferred to the hook upon creation;
 >   - The user can cancel the order and receive the funds back;
@@ -136,7 +136,9 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 
 ### Interacting
 
-If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing [http://localhost:5100](http://localhost:5100) will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via asyncSwap. After that, just search for the contract using that address on Otterscan. Then, follow the instructions below:
+If the previous steps were followed precisely, specifically the one that sets up the local architecture, accessing [http://localhost:5100](http://localhost:5100) will present you with a block explorer where you can monitor the transactions occurring on the contract of interest. In this project, that contract is the one that implements the Uniswap hook via AsyncSwap[^1]. After that, just search for the contract using that address on Otterscan. Then, follow the instructions below:
+
+[^1]: You can see [here](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap#Configure-a-AsyncSwap-Hook) the reference for enabling the AsyncSwap in a UniswapV4 hook, and [here](https://github.com/henriquemarlon/swapx/blob/demo/contracts/src/SwapXHook.sol#L109) is where it was defined within the application.
 
 ```bash
 make demo
