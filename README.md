@@ -37,7 +37,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 [Link-deck]: https://cartesi.io
 
 ### Architecture
-![image](https://github.com/user-attachments/assets/8974e20e-49c3-470b-921c-e5abf45234f3)
+![image](https://github.com/user-attachments/assets/f12834c7-769f-4f60-b714-06690cd74f62)
 
 > 1 - The [`SwapXHook.sol`](https://github.com/henriquemarlon/swapx/blob/main/contracts/src/SwapXHook.sol) implementation is a Uniswap hook based on AsyncSwap[^1]. Instead of executing the swap at the market price, it implements a custom logic for [**limit orders**](https://www.investopedia.com/terms/l/limitorder.asp):
 >
@@ -52,7 +52,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 > 4 - The **Cartesi Coprocessor** is an EigenLayer AVS that operates through a network of operators, leveraging the runtime provided by the **Cartesi Machine**. It is triggered when a new TaskIssued(bytes32, bytes, address) event is emitted. To learn more, visit: https://docs.mugen.builders/cartesi-co-processor-tutorial/introduction.
 
 > 5 - The **Base Layer Access** is enabled through domain `0x27`, present in the GIO, which allows calls via[`eth_getStorageAt`](https://www.quicknode.com/docs/ethereum/eth_getStorageAt). Based on this, the application can access the base layer (read-only), and this is how previously created orders (up to the previous block) are loaded into the application to be processed within the order book. The request specification is as follows:  
->   ```
+>   ```json
 >   {"domain": "0x27", "id": "0x<block_hash:32_bytes><address:20_bytes><storage_slot:32_bytes>"}
 >   ```
 
