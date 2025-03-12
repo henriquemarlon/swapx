@@ -143,18 +143,6 @@ If the previous steps were followed precisely, specifically the one that sets up
 make demo
 ```
 
-> [!IMPORTANT]
-> You should observe, after a while, five calls targeting the signature method 0x7417ccfb, each covering one of the following scenarios:
-> 
-> |        | Scenario                                        | Description                                                                                                |
-> |--------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-> | 0      | Bid Fully Matched by Single Ask                 | A bid order is completely fulfilled by one single ask order.                                               |
-> | 1      | Bid Fully Matched by Multiple Asks              | A bid order is completely matched by a combination of multiple ask orders.                                 |
-> | 2      | Ask Fully Matched by Single Bid                 | An ask order is completely fulfilled by one single bid order.                                              |
-> | 3      | Ask Fully Matched by Multiple Bids              | An ask order is completely matched by a combination of multiple bid orders.                                |
-> | 4      | Ask Partially Matched but Bid Fully Fulfilled   | An ask order is only partially filled, while the bid order is fully satisfied.                             |
->
-
 You can see even more details by accessing the logs tab of one of these transactions, and you'll come across something like this:
 
 ![logs](https://github.com/user-attachments/assets/d2161550-aa96-41b2-bb13-0e5ebe457ea3)
