@@ -84,102 +84,19 @@ contract Demo is Script {
             PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
 
         vm.startBroadcast();
-        // Test 0: Corresponds to TestBidFullyMatchedBySingleAsk
         swapRouter.swap(
             key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -50, sqrtPriceLimitX96: 90}),
+            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -50, sqrtPriceLimitX96: 50}),
             testSettings,
             abi.encode(50, msg.sender)
         );
-
+        
         swapRouter.swap(
             key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -50, sqrtPriceLimitX96: 100}),
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -50, sqrtPriceLimitX96: 50}),
             testSettings,
             abi.encode(50, msg.sender)
         );
-
-        // Test 1: Corresponds to TestBidFullyMatchedByMultipleAsks
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -40, sqrtPriceLimitX96: 90}),
-            testSettings,
-            abi.encode(40, msg.sender)
-        );
-
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -60, sqrtPriceLimitX96: 85}),
-            testSettings,
-            abi.encode(60, msg.sender)
-        );
-
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -100, sqrtPriceLimitX96: 100}),
-            testSettings,
-            abi.encode(100, msg.sender)
-        );
-
-        // Test 2: Corresponds to TestAskFullyMatchedBySingleBid
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -50, sqrtPriceLimitX96: 100}),
-            testSettings,
-            abi.encode(50, msg.sender)
-        );
-
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -50, sqrtPriceLimitX96: 100}),
-            testSettings,
-            abi.encode(50, msg.sender)
-        );
-
-        // Test 3: Corresponds to TestAskFullyMatchedByMultipleBids
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -60, sqrtPriceLimitX96: 100}),
-            testSettings,
-            abi.encode(100, msg.sender)
-        );
-
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -40, sqrtPriceLimitX96: 100}),
-            testSettings,
-            abi.encode(120, msg.sender)
-        );
-
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -100, sqrtPriceLimitX96: 90}),
-            testSettings,
-            abi.encode(100, msg.sender)
-        );
-
-        // Test 4: Corresponds to TestAskPartiallyMatchedButBidFulfilled
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -50, sqrtPriceLimitX96: 90}),
-            testSettings,
-            abi.encode(50, msg.sender)
-        );
-
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -40, sqrtPriceLimitX96: 100}),
-            testSettings,
-            abi.encode(40, msg.sender)
-        );
-
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -80, sqrtPriceLimitX96: 100}),
-            testSettings,
-            abi.encode(80, msg.sender)
-        );
-
         vm.stopBroadcast();
     }
 
