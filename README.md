@@ -49,7 +49,12 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 
 > 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations with guarantees of the computation performed, while also having [**"skin in the game"**](https://docs.eigenlayer.xyz/eigenlayer/concepts/slashing/slashing-concept) through slashing penalties in case of malicious behavior.
 
-> 4 - The **Cartesi Coprocessor** is an EigenLayer AVS with a network of operators, leveraging the runtime provided by the **Cartesi Machine**. To learn more, visit: https://docs.mugen.builders/cartesi-co-processor-tutorial/introduction.
+> 4 - The **Cartesi Coprocessor** is an EigenLayer AVS that operates through a network of operators, leveraging the runtime provided by the **Cartesi Machine**. It is triggered when a new TaskIssued(bytes32, bytes, address) event is emitted. To learn more, visit: https://docs.mugen.builders/cartesi-co-processor-tutorial/introduction.
+
+> 5 - The **Base Layer Access** is enabled through domain `0x27`, present in the GIO, which allows calls via[`eth_getStorageAt`](https://www.quicknode.com/docs/ethereum/eth_getStorageAt). Based on this, the application can access the base layer (read-only), and this is how previously created orders (up to the previous block) are loaded into the application to be processed within the order book. The request specification is as follows:  
+>   ```
+>   {"domain": "0x27", "id": "0x<block_hash:32_bytes><address:20_bytes><storage_slot:32_bytes>"}
+>   ```
 
 ###  Prerequisites
 
