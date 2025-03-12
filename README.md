@@ -37,8 +37,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 [Link-deck]: https://cartesi.io
 
 ### Architecture
-![image](https://github.com/user-attachments/assets/78551e51-99f1-4d0c-9e99-fa781695b3dd)
-
+![image](https://github.com/user-attachments/assets/8974e20e-49c3-470b-921c-e5abf45234f3)
 
 > 1 - The [`SwapXHook.sol`](https://github.com/henriquemarlon/swapx/blob/main/contracts/src/SwapXHook.sol) implementation is a Uniswap hook based on [`AsyncSwap`](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap). Instead of executing the swap at the market price, it implements a custom logic for [**limit orders**](https://www.investopedia.com/terms/l/limitorder.asp):
 >
@@ -48,7 +47,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 
 > 2 - The assets in this case are token contracts that will be transacted in the swap between users through the pool and contracts that are part of the [**UniswapV4 SDK**](https://docs.uniswap.org/contracts/v4/overview).
 
-> 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations **on behalf of the application** with guarantees of the computation performed, while also having [**skin in the game**](https://docs.eigenlayer.xyz/eigenlayer/concepts/slashing/slashing-concept) through slashing penalties in case of malicious behavior.
+> 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations **on behalf of the application** with guarantees of the computation performed, while also having [**"skin in the game"**](https://docs.eigenlayer.xyz/eigenlayer/concepts/slashing/slashing-concept) through slashing penalties in case of malicious behavior.
 
 > 4 - The **Cartesi Coprocessor** is the framework that enables the creation of **EVM Linux-powered coprocessors**, leveraging the runtime provided by the **Cartesi Machine**. To learn more, visit: https://docs.mugen.builders/cartesi-co-processor-tutorial/introduction.
 
