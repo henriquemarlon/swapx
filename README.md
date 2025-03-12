@@ -73,7 +73,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 
 ###  Running
 > [!WARNING]
-> Before the following step, make sure that the variable `ETHEREUM_ENDPOINT: http://anvil:8545` is set in the environment of the **operator service** inside the [**./third_party/cartesi-coprocessor/docker-compose-devnet.yaml**](./third_party/cartesi-coprocessor/docker-compose-devnet.yaml) file.
+> Before proceeding, make sure that the variable `ETHEREUM_ENDPOINT: http://anvil:8545` is set in the environment of the **operator service** inside the [**./third_party/cartesi-coprocessor/docker-compose-devnet.yaml**](./third_party/cartesi-coprocessor/docker-compose-devnet.yaml) file.
 
 1. Start the devnet coprocessor infrastructure:
 
