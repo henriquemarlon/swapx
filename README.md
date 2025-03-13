@@ -1,8 +1,7 @@
-<br>
 <p align="center">
-    <img src="https://github.com/Mugen-Builders/.github/assets/153661799/7ed08d4c-89f4-4bde-a635-0b332affbd5d" align="center" width="20%">
+  <img src="https://github.com/user-attachments/assets/511f68b6-c828-4016-b4d5-f5e512ee5c7d" width="400" style="border-radius: 15px;">
 </p>
-<br>
+
 <div align="center">
     <i>An EVM Linux-powered coprocessor as an orderbook for UniswapV4</i>
 </div>
@@ -155,9 +154,5 @@ make demo
 You can see even more details by accessing the logs tab of one of these transactions, and you'll come across something like this:
 
 ![logs](https://github.com/user-attachments/assets/d2161550-aa96-41b2-bb13-0e5ebe457ea3)
-
-### Next steps:
-
-![image](https://github.com/user-attachments/assets/511f68b6-c828-4016-b4d5-f5e512ee5c7d)
 
 [^1]: You can see [here](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap#Configure-a-AsyncSwap-Hook) the reference for enabling the AsyncSwap in a UniswapV4 hook, and [here](https://github.com/henriquemarlon/swapx/blob/demo/contracts/src/SwapXHook.sol#L109) is where it was defined within the application.
