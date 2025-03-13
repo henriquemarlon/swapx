@@ -89,7 +89,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		uint256.MustFromBig(quantity),
 		uint256.MustFromBig(big.NewInt(0)),
 		&orderType,
-		&domain.OrderStatusOpen,
+		&domain.OrderNotCancelledOrFulfilled,
 	)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 	)
 	if err != nil {
 		if err == domain.ErrNoOrdersFound {
-			return nil, fmt.Errorf("%v with type sell", err)
+			return nil, fmt.Errorf("%v with type buy", err)
 		}
 		buyOrders = nil
 	}
@@ -149,10 +149,10 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 
 	orderBook := domain.NewOrderBook()
 
-	bids, err := h.OrderRepository.FindOrdersByTypeAndStatus(domain.OrderTypeBuy, domain.OrderStatusOpen)
+	bids, err := h.OrderRepository.FindOrdersByTypeAndStatus(domain.OrderTypeBuy, domain.OrderNotCancelledOrFulfilled)
 	if err != nil {
 		if err == domain.ErrNoOrdersFound {
-			return nil, fmt.Errorf("%v with type buy", err)
+			return nil, fmt.Errorf("%v with type buy in memory", err)
 		}
 		return nil, err
 	}
@@ -160,10 +160,10 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		orderBook.Bids.Push(bid)
 	}
 
-	asks, err := h.OrderRepository.FindOrdersByTypeAndStatus(domain.OrderTypeSell, domain.OrderStatusOpen)
+	asks, err := h.OrderRepository.FindOrdersByTypeAndStatus(domain.OrderTypeSell, domain.OrderNotCancelledOrFulfilled)
 	if err != nil {
 		if err == domain.ErrNoOrdersFound {
-			return nil, fmt.Errorf("%v with type sell", err)
+			return nil, fmt.Errorf("%v with type sell in memory", err)
 		}
 		return nil, err
 	}
@@ -176,16 +176,22 @@ func (h *MatchOrdersUseCase) Execute(input *MatchOrdersInputDTO, metadata coproc
 		return nil, err
 	}
 
-	allOrders, err := json.Marshal(orders)
+	ordersBytes, err := json.Marshal(orders)
 	if err != nil {
 		return nil, err
 	}
-	slog.Info("Current state before match", "info", string(allOrders))
+	slog.Info("Current state before match", "info", string(ordersBytes))
 
 	trades, err := orderBook.MatchOrders()
 	if err != nil {
 		return nil, err
 	}
+
+	tradesBytes, err := json.Marshal(trades)
+	if err != nil {
+		return nil, err
+	}
+	slog.Info("Selected trades", "info", string(tradesBytes))
 
 	return &MatchOrdersOutputDTO{
 		Trades: trades,

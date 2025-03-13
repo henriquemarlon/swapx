@@ -83,7 +83,7 @@ contract SwapXHook is ISwapXHook, BaseAsyncSwap {
             } else {
                 sellOrders.push(order);
             }
-            
+
             uint256 orderId = params.zeroForOne ? buyOrders.length : sellOrders.length;
 
             swapXTaskManager.createTask(abi.encode(orderId, sqrtPrice, specifiedAmount, params.zeroForOne ? 0 : 1));

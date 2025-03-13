@@ -16,17 +16,15 @@ var (
 )
 
 type OrderType string
-
 var (
 	OrderTypeBuy  OrderType = "buy"
 	OrderTypeSell OrderType = "sell"
 )
 
 type OrderStatus string
-
 var (
-	OrderStatusOpen              OrderStatus = "open"
-	OrderStatusFulFilledOrClosed OrderStatus = "fulfilled_or_closed"
+	OrderCancelledOrFulfilled    OrderStatus = "cancelled_or_fulfilled"
+	OrderNotCancelledOrFulfilled OrderStatus = "not_cancelled_or_fulfilled"
 )
 
 type OrderRepository interface {

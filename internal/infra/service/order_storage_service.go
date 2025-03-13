@@ -1,7 +1,10 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"log/slog"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -32,6 +35,8 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 		return nil, err
 	}
 
+	slog.Info("/====================== Looking for orders at", "slot =====================", fmt.Sprintf("> %v", new(big.Int).SetBytes(ordersSlot.Bytes())))
+
 	res, err := handler.Handle(blockHash, hookAddress, ordersSlot)
 	if err != nil {
 		return nil, err
@@ -42,13 +47,15 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 		return nil, ErrNoOrdersFound
 	}
 
+	slog.Info("Total orders found in storage", "count", arrayLength.Int64())
+
 	orders := make([]*domain.Order, 0, arrayLength.Int64())
 	slotHash := crypto.Keccak256Hash(ordersSlot.Bytes())
 
 	for i := int64(0); i < arrayLength.Int64(); i++ {
 		var orderRawData [4]uint256.Int
 
-		for j := 0; j < 3; j++ {
+		for j := 0; j < 4; j++ {
 			data, err := handler.Handle(blockHash, hookAddress, slotHash)
 			if err != nil {
 				return nil, err
@@ -58,6 +65,12 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 			slotHash = common.BigToHash(new(big.Int).Add(new(big.Int).SetBytes(slotHash.Bytes()), big.NewInt(1)))
 		}
 
+		orderRawDataBytes, err := json.Marshal(orderRawData)
+		if err != nil {
+			return nil, err
+		}
+		slog.Info("Raw order data collected from base layer with", " id", i, "data", string(orderRawDataBytes))
+
 		isCancelled, err := s.FindOrderStatus(hookAddress, big.NewInt(i), blockHash, statusSlot)
 		if err != nil {
 			return nil, err
@@ -65,9 +78,9 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 
 		isFulfilled := new(uint256.Int).Sub(&orderRawData[2], &orderRawData[3]).IsZero()
 
-		orderStatus := domain.OrderStatusOpen
+		orderStatus := domain.OrderNotCancelledOrFulfilled
 		if *isCancelled || isFulfilled {
-			orderStatus = domain.OrderStatusFulFilledOrClosed
+			orderStatus = domain.OrderCancelledOrFulfilled
 		}
 
 		order, err := domain.NewOrder(
@@ -83,6 +96,12 @@ func (s *OrderStorageService) FindOrdersBySlot(hookAddress common.Address, block
 			return nil, err
 		}
 
+		orderBytes, err := json.Marshal(order)
+		if err != nil {
+			return nil, err
+		}
+		slog.Info("Order found", "info", string(orderBytes))
+
 		orders = append(orders, order)
 	}
 
@@ -95,7 +114,9 @@ func (s *OrderStorageService) FindOrderStatus(hookAddress common.Address, orderI
 		return nil, err
 	}
 
-	slotHash := crypto.Keccak256Hash(common.LeftPadBytes(orderId.Bytes(), 32), slot.Bytes())
+	slog.Info("/====================== Looking for order status at", "slot =====================", fmt.Sprintf("> %v", new(big.Int).SetBytes(slot.Bytes())))
+
+	slotHash := crypto.Keccak256Hash(common.BigToHash(orderId).Bytes(), slot.Bytes())
 	res, err := handler.Handle(blockHash, hookAddress, slotHash)
 	if err != nil {
 		return nil, err
