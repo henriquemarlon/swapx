@@ -103,21 +103,7 @@ demo04:
 		--slow \
 		-vvvv
 
-.PHONY: demo05
-demo05:
-	@forge script ./contracts/script/demo/05_demo.s.sol --broadcast \
-		--root contracts \
-		--rpc-url $(RPC_URL) \
-		--private-key $(PRIVATE_KEY) \
-		--slow \
-		-vvvv
-
 demo: demo01
-	@sleep 2
 	@$(MAKE) demo02
-	@sleep 2
 	@$(MAKE) demo03
-	@sleep 2
 	@$(MAKE) demo04
-	@sleep 2
-	@$(MAKE) demo05
