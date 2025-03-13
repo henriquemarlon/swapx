@@ -92,37 +92,37 @@ func (ob *OrderBook) MatchOrders() ([]*Trade, error) {
 	for ob.Bids.Len() > 0 && ob.Asks.Len() > 0 {
 		bestBid := (*ob.Bids)[0]
 		bestAsk := (*ob.Asks)[0]
-	
+
 		if bestBid.SqrtPrice.Cmp(bestAsk.SqrtPrice) < 0 {
 			break
 		}
-	
+
 		remainingBid := new(uint256.Int).Sub(bestBid.Amount, bestBid.MatchedAmount)
 		remainingAsk := new(uint256.Int).Sub(bestAsk.Amount, bestAsk.MatchedAmount)
-	
+
 		matchedQty := new(uint256.Int)
 		if remainingBid.Cmp(remainingAsk) <= 0 {
 			matchedQty.Set(remainingBid)
 		} else {
 			matchedQty.Set(remainingAsk)
 		}
-			
+
 		trade := &Trade{
 			BidId: bestBid.Id,
 			AskId: bestAsk.Id,
 		}
 		trades = append(trades, trade)
-	
+
 		bestBid.MatchedAmount = new(uint256.Int).Add(bestBid.MatchedAmount, matchedQty)
 		bestAsk.MatchedAmount = new(uint256.Int).Add(bestAsk.MatchedAmount, matchedQty)
-	
+
 		remainingBid = new(uint256.Int).Sub(bestBid.Amount, bestBid.MatchedAmount)
 		remainingAsk = new(uint256.Int).Sub(bestAsk.Amount, bestAsk.MatchedAmount)
-	
+
 		if remainingBid.IsZero() {
 			heap.Pop(ob.Bids)
 		}
-	
+
 		if remainingAsk.IsZero() {
 			heap.Pop(ob.Asks)
 		}
