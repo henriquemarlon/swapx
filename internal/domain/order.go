@@ -16,14 +16,12 @@ var (
 )
 
 type OrderType string
-
 var (
 	OrderTypeBuy  OrderType = "buy"
 	OrderTypeSell OrderType = "sell"
 )
 
 type OrderStatus string
-
 var (
 	OrderCancelledOrFulfilled    OrderStatus = "cancelled_or_fulfilled"
 	OrderNotCancelledOrFulfilled OrderStatus = "not_cancelled_or_fulfilled"
