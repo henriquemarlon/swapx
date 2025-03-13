@@ -67,11 +67,57 @@ hook:
 		--verifier-url http://localhost:5555 \
 		-vvvv
 
-.PHONY: demo
-demo:
-	@forge script ./contracts/script/Demo.s.sol --broadcast \
+.PHONY: demo01
+demo01:
+	@forge script ./contracts/script/demo/01_demo.s.sol --broadcast \
 		--root contracts \
 		--rpc-url $(RPC_URL) \
 		--private-key $(PRIVATE_KEY) \
 		--slow \
 		-vvvv
+
+.PHONY: demo02
+demo02:
+	@forge script ./contracts/script/demo/02_demo.s.sol --broadcast \
+		--root contracts \
+		--rpc-url $(RPC_URL) \
+		--private-key $(PRIVATE_KEY) \
+		--slow \
+		-vvvv
+
+.PHONY: demo03
+demo03:
+	@forge script ./contracts/script/demo/03_demo.s.sol --broadcast \
+		--root contracts \
+		--rpc-url $(RPC_URL) \
+		--private-key $(PRIVATE_KEY) \
+		--slow \
+		-vvvv
+
+.PHONY: demo04
+demo04:
+	@forge script ./contracts/script/demo/04_demo.s.sol --broadcast \
+		--root contracts \
+		--rpc-url $(RPC_URL) \
+		--private-key $(PRIVATE_KEY) \
+		--slow \
+		-vvvv
+
+.PHONY: demo05
+demo05:
+	@forge script ./contracts/script/demo/05_demo.s.sol --broadcast \
+		--root contracts \
+		--rpc-url $(RPC_URL) \
+		--private-key $(PRIVATE_KEY) \
+		--slow \
+		-vvvv
+
+demo: demo01
+	@sleep 2
+	@$(MAKE) demo02
+	@sleep 2
+	@$(MAKE) demo03
+	@sleep 2
+	@$(MAKE) demo04
+	@sleep 2
+	@$(MAKE) demo05

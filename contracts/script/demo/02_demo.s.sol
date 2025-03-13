@@ -16,7 +16,7 @@ import {MockERC20} from "solmate/src/test/utils/mocks/MockERC20.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {PoolModifyLiquidityTest} from "v4-core/src/test/PoolModifyLiquidityTest.sol";
 
-contract Demo is Script {
+contract Demo02 is Script {
     PoolKey key;
 
     MockERC20 tk0;
@@ -79,21 +79,31 @@ contract Demo is Script {
         vm.stopBroadcast();
     }
 
+    // Case: BuyOrderFulFilledByMultipleSellOrders
+    // Number of matchs: 2
     function run() public {
         PoolSwapTest.TestSettings memory testSettings =
             PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
 
         vm.startBroadcast();
+
         swapRouter.swap(
             key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -50, sqrtPriceLimitX96: 50}),
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -20, sqrtPriceLimitX96: 50}),
             testSettings,
             abi.encode(50, msg.sender)
         );
 
         swapRouter.swap(
             key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -50, sqrtPriceLimitX96: 50}),
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -30, sqrtPriceLimitX96: 30}),
+            testSettings,
+            abi.encode(30, msg.sender)
+        );
+
+        swapRouter.swap(
+            key,
+            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -50, sqrtPriceLimitX96: 50}),
             testSettings,
             abi.encode(50, msg.sender)
         );
