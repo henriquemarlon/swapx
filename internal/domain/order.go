@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/holiman/uint256"
@@ -63,8 +64,17 @@ func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, ma
 }
 
 func (o *Order) Validate() error {
-	if o.Id == 0 || o.Hook == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 {
-		return ErrInvalidOrder
+	if o.Id == 0 {
+		return fmt.Errorf("order ID cannot be zero: %w", ErrInvalidOrder)
+	}
+	if o.Hook == (common.Address{}) {
+		return fmt.Errorf("order hook address is invalid: %w", ErrInvalidOrder)
+	}
+	if o.SqrtPrice.Sign() == 0 {
+		return fmt.Errorf("order sqrt_price must be greater than zero: %w", ErrInvalidOrder)
+	}
+	if o.Amount.Sign() == 0 {
+		return fmt.Errorf("order amount must be greater than zero: %w", ErrInvalidOrder)
 	}
 	return nil
 }

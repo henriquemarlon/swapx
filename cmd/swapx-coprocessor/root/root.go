@@ -55,7 +55,7 @@ func run(cmd *cobra.Command, args []string) {
 		if err != nil {
 			slog.Error("Error: making HTTP request: %v", "err", err)
 		}
-		slog.Info("Received finish status", strconv.Itoa(res.StatusCode), res.Body)
+		slog.Info("Received finish status", "status_code", strconv.Itoa(res.StatusCode))
 
 		if res.StatusCode == 202 {
 			slog.Info("No pending rollup request, retrying...")
