@@ -89,21 +89,21 @@ contract Demo02 is Script {
 
         swapRouter.swap(
             key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -20, sqrtPriceLimitX96: 50}),
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -20, sqrtPriceLimitX96: 100}),
             testSettings,
             abi.encode(50, msg.sender)
         );
 
         swapRouter.swap(
             key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -30, sqrtPriceLimitX96: 30}),
+            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -30, sqrtPriceLimitX96: 100}),
             testSettings,
-            abi.encode(30, msg.sender)
+            abi.encode(50, msg.sender)
         );
 
         swapRouter.swap(
             key,
-            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -50, sqrtPriceLimitX96: 50}),
+            IPoolManager.SwapParams({zeroForOne: true, amountSpecified: -50, sqrtPriceLimitX96: 100}),
             testSettings,
             abi.encode(50, msg.sender)
         );

@@ -92,7 +92,7 @@ func (ob *OrderBook) MatchOrders() ([]*Trade, error) {
 	for ob.Bids.Len() > 0 && ob.Asks.Len() > 0 {
 		bestBid := (*ob.Bids)[0]
 		bestAsk := (*ob.Asks)[0]
-
+	
 		if bestBid.SqrtPrice.Cmp(bestAsk.SqrtPrice) < 0 {
 			break
 		}
@@ -106,7 +106,7 @@ func (ob *OrderBook) MatchOrders() ([]*Trade, error) {
 		} else {
 			matchedQty.Set(remainingAsk)
 		}
-
+			
 		trade := &Trade{
 			BidId: bestBid.Id,
 			AskId: bestAsk.Id,
