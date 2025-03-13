@@ -1,3 +1,6 @@
+[submodule "third_party/cartesi-coprocessor"]
+	path = third_party/cartesi-coprocessor
+	url = https://github.com/zippiehq/cartesi-coprocessor
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
@@ -13,6 +16,3 @@
 [submodule "contracts/lib/coprocessor-base-contract"]
 	path = contracts/lib/coprocessor-base-contract
 	url = https://github.com/henriquemarlon/coprocessor-base-contract
-[submodule "third_party/cartesi-coprocessor"]
-	path = third_party/cartesi-coprocessor
-	url = https://github.com/zippiehq/cartesi-coprocessor
