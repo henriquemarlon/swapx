@@ -1,6 +1,9 @@
+
+<br>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/511f68b6-c828-4016-b4d5-f5e512ee5c7d" width="400" style="border-radius: 15px;">
+    <img src="https://github.com/user-attachments/assets/825a37dd-9146-4d9c-8dea-47fc922b051c" align="center" width="20%">
 </p>
+<br>
 
 <div align="center">
     <i>An EVM Linux-powered coprocessor as an orderbook for UniswapV4</i>
