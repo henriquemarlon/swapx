@@ -47,7 +47,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 
 > 2 - The **Assets** in this case are token contracts that will be transacted in the swap between users through the pool and contracts that are part of the [**UniswapV4 SDK**](https://docs.uniswap.org/contracts/v4/overview).
 
-> 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations with guarantees of the computation performed, while also having [**"skin in the game"**](https://docs.eigenlayer.xyz/eigenlayer/concepts/slashing/slashing-concept) through slashing penalties in case of malicious behavior.
+> 3 - The **Operator**, which is part of the **Cartesi Coprocessor**, operates under the **crypto-economic security** of the [**EigenLayer restaking protocol**](https://docs.eigenlayer.xyz/eigenlayer/overview). This gives it the ability to perform operations with guarantees of the computation performed.
 
 > 4 - The **Cartesi Coprocessor** is an EigenLayer AVS that operates through a network of operators, leveraging the runtime provided by the **Cartesi Machine**. It is triggered when a new TaskIssued(bytes32, bytes, address) event is emitted. To learn more, visit: https://docs.mugen.builders/cartesi-co-processor-tutorial/introduction.
 
@@ -165,3 +165,5 @@ You can see even more details by accessing the logs tab of one of these transact
 ![logs](https://github.com/user-attachments/assets/d2161550-aa96-41b2-bb13-0e5ebe457ea3)
 
 [^1]: You can see [here](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap#Configure-a-AsyncSwap-Hook) the reference for enabling the AsyncSwap in a UniswapV4 hook, and [here](https://github.com/henriquemarlon/swapx/blob/demo/contracts/src/SwapXHook.sol#L109) is where it was defined within the application.
+
+Next steps:
