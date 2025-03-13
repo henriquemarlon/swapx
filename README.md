@@ -28,14 +28,6 @@
 ### Overview
 SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the traditional AMM logic with an asynchronous swap system and limit orders. Leveraging EigenLayer's cryptoeconomic security through the Cartesi Coprocessor, it enables swaps to be scheduled, optimized, and auditable, ensuring greater liquidity efficiency and reducing trader uncertainty. This approach eliminates the need for immediate execution, allowing for more sophisticated and flexible strategies for market makers, liquidity protocols, and derivatives.
 
-[![Docs]][Link-docs] [![Deck]][Link-deck]
-	
-[Docs]: https://img.shields.io/badge/Documentation-6FE1E5?style=for-the-badge
-[Link-docs]: https://cartesi.io
-
-[Deck]: https://img.shields.io/badge/Deck-868380?style=for-the-badge
-[Link-deck]: https://cartesi.io
-
 ### Architecture
 ![image](https://github.com/user-attachments/assets/f12834c7-769f-4f60-b714-06690cd74f62)
 
