@@ -63,7 +63,7 @@ func NewOrder(id uint64, hook common.Address, sqrtPrice, amount *uint256.Int, ma
 }
 
 func (o *Order) Validate() error {
-	if o.Id == 0 || o.Hook == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 || o.MatchedAmount.Sign() == 0 {
+	if o.Id == 0 || o.Hook == (common.Address{}) || o.SqrtPrice.Sign() == 0 || o.Amount.Sign() == 0 {
 		return ErrInvalidOrder
 	}
 	return nil
