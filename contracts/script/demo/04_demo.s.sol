@@ -107,13 +107,6 @@ contract Demo04 is Script {
             abi.encode(120, msg.sender)
         );
 
-        // match remaining amount
-        swapRouter.swap(
-            key,
-            IPoolManager.SwapParams({zeroForOne: false, amountSpecified: -10, sqrtPriceLimitX96: 120}),
-            testSettings,
-            abi.encode(120, msg.sender)
-        );
         vm.stopBroadcast();
     }
 

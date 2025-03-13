@@ -148,6 +148,18 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 make demo
 ```
 
+
+> [!NOTE]
+> You should observe, after a while, four calls targeting the signature method 0x7417ccfb, each covering one of the following scenarios:
+> 
+> |        | Scenario                                       | Description                                                                                                |
+> |--------|----------------------------------------------|------------------------------------------------------------------------------------------------------------|
+> | 0      | Buy Order Fulfilled by One Sell Order       | A buy order is completely fulfilled by a single sell order.                                                |
+> | 1      | Buy Order Fulfilled by Multiple Sell Orders | A buy order is completely matched by a combination of multiple sell orders.                                |
+> | 2      | Sell Order Fulfilled by One Buy Order       | A sell order is completely fulfilled by a single buy order.                                                |
+> | 3      | Sell Order Fulfilled by Multiple Buy Orders | A sell order is completely matched by a combination of multiple buy orders.                                |
+> | 4      | Buy Order Partially Fulfilled by Multiple Sell Orders | A buy order is only partially matched, while multiple sell orders fulfill part of it.                     |
+
 You can see even more details by accessing the logs tab of one of these transactions, and you'll come across something like this:
 
 ![logs](https://github.com/user-attachments/assets/d2161550-aa96-41b2-bb13-0e5ebe457ea3)
