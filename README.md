@@ -164,8 +164,9 @@ You can see even more details by accessing the logs tab of one of these transact
 
 ![logs](https://github.com/user-attachments/assets/d2161550-aa96-41b2-bb13-0e5ebe457ea3)
 
-[^1]: You can see [here](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap#Configure-a-AsyncSwap-Hook) the reference for enabling the AsyncSwap in a UniswapV4 hook, and [here](https://github.com/henriquemarlon/swapx/blob/demo/contracts/src/SwapXHook.sol#L109) is where it was defined within the application.
-
 ### Next steps:
 
 ![image](https://github.com/user-attachments/assets/511f68b6-c828-4016-b4d5-f5e512ee5c7d)
+
+
+[^1]: You can see [here](https://docs.uniswap.org/contracts/v4/quickstart/hooks/async-swap#Configure-a-AsyncSwap-Hook) the reference for enabling the AsyncSwap in a UniswapV4 hook, and [here](https://github.com/henriquemarlon/swapx/blob/demo/contracts/src/SwapXHook.sol#L109) is where it was defined within the application.
