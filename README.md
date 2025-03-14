@@ -144,7 +144,7 @@ make demo
 
 
 > [!NOTE]
-> You should observe, after a while, four calls targeting the signature method 0x7417ccfb, each covering one of the following scenarios:
+> You should observe, after a while, four calls targeting the signature method `0x7417ccfb`, each covering one of the following scenarios:
 > 
 > |        | Scenario                                       | Description                                                                                                |
 > |--------|----------------------------------------------|------------------------------------------------------------------------------------------------------------|
