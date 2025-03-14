@@ -1,4 +1,4 @@
-# DISCLAIMER
+## <div align="center">Disclaimer</div>
 
 Below is a list of concerns that should be taken into consideration in the current version.
 
