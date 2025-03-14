@@ -1,7 +1,7 @@
 
 <br>
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/825a37dd-9146-4d9c-8dea-47fc922b051c" align="center" width="20%">
+    <img src="https://github.com/user-attachments/assets/02f0d7cd-b823-453d-83e6-8a51a5810ca0" align="center" width="30%">
 </p>
 <br>
 
@@ -144,7 +144,7 @@ make demo
 
 
 > [!NOTE]
-> You should observe, after a while, four calls targeting the signature method 0x7417ccfb, each covering one of the following scenarios:
+> You should observe, after a while, four calls targeting the signature method `0x7417ccfb`, each covering one of the following scenarios:
 > 
 > |        | Scenario                                       | Description                                                                                                |
 > |--------|----------------------------------------------|------------------------------------------------------------------------------------------------------------|
