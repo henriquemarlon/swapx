@@ -37,3 +37,13 @@ This concern is based on behavior we observed on Otterscan. This is the order of
 4th The swap is executed between **A** and **B** (orders only change status when executed).  
 
 Thus, there is a possibility that swap **C** might be reading the outdated status of orders **A** and **B**.
+
+3 - Non-Fault-Tolerant Output Execution:
+
+The current design of the coprocessor envisions batch execution of outputs derived from the same input. Taking this to the extreme, if one of the multiple outputs of an application fails and reverts during execution, all other outputs will also be reverted, which is highly undesirable. In our application, we have a similar potential issue:
+
+One of the order executions defined after the order book matching process may revert due to an arbitrary error, effectively **blocking the execution of other swaps** since the entire transaction in which the batch of orders was executed will revert due to a single failing order.
+
+4 - Undefined Economic Model of the Coprocessor:
+
+The coprocessor infrastructure inherently has costs, whether from the execution of outputs (**gas fees**) or the infrastructure maintained by the operators. However, the current setup has not yet defined how coprocessor calls ( issueTask ) will be charged to cover these costs and ensure financial incentives for maintaining a network with multiple operators.
