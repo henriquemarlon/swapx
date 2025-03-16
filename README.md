@@ -71,8 +71,6 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 4. [Install the Cartesi Coprocessor CLI](https://docs.mugen.builders/cartesi-co-processor-tutorial/installation)
 
 ###  Running
-> [!WARNING]
-> Before proceeding, make sure that the variable `ETHEREUM_ENDPOINT: http://anvil:8545` is set in the environment of the **operator service** inside the [**./third_party/cartesi-coprocessor/docker-compose-devnet.yaml**](./third_party/cartesi-coprocessor/docker-compose-devnet.yaml) file.
 
 1. Start the devnet coprocessor infrastructure:
 
