@@ -1,7 +1,6 @@
-
 <br>
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/02f0d7cd-b823-453d-83e6-8a51a5810ca0" align="center" width="30%">
+    <img src="https://github.com/Mugen-Builders/.github/assets/153661799/7ed08d4c-89f4-4bde-a635-0b332affbd5d" align="center" width="20%">
 </p>
 <br>
 
