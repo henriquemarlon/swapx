@@ -92,7 +92,7 @@ SwapX integrates a decentralized orderbook with Uniswap v4 hooks, replacing the 
 > ```env
 > RPC_URL=http://localhost:8545
 > PRIVATE_KEY=0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
-> ``
+> ```
 
 3. Deploy [UniswapV4](https://docs.uniswap.org/contracts/v4/overview) contracts, `SwapXHook.sol` and `SwapXTaskManager.sol` contracts:`
 
