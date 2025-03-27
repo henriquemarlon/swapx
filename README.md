@@ -1,6 +1,6 @@
 <br>
 <p align="center">
-    <img src="https://github.com/Mugen-Builders/.github/assets/153661799/7ed08d4c-89f4-4bde-a635-0b332affbd5d" align="center" width="20%">
+    <img src="https://github.com/user-attachments/assets/b962938d-7573-49bf-8855-28af9d3ae963" align="center" width="20%">
 </p>
 <br>
 
