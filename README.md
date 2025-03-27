@@ -1,6 +1,6 @@
 <br>
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/b962938d-7573-49bf-8855-28af9d3ae963" align="center" width="20%">
+    <img src="https://github.com/user-attachments/assets/a3ed08f8-d58f-4a3a-94f1-0b4a39c721b9" align="center" width="20%">
 </p>
 <br>
 
@@ -12,7 +12,7 @@
 </div>
 <br>
 <p align="center">
-	<img src="https://img.shields.io/github/license/henriquemarlon/swapx?style=default&logo=opensourceinitiative&logoColor=white&color=79F7FA" alt="license">
+	<img src="https://img.shields.io/github/license/henriquemarlon/swapx?style=default&logo=opensourceinitiative&logoColor=white&color=3D8EA5" alt="license">
 	<img src="https://img.shields.io/github/last-commit/henriquemarlon/swapx?style=default&logo=git&logoColor=white&color=868380" alt="last-commit">
 </p>
 
